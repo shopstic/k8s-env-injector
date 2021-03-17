@@ -14,6 +14,8 @@ RUN \
   curl -Lo /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v${K8S_VERSION}/bin/linux/amd64/kubectl && \
   chmod +x /usr/bin/kubectl
 
+FROM shopstic/deno:1.8.1 as deno
+
 FROM debian:stable-20210111-slim
 
 RUN \
@@ -25,8 +27,11 @@ RUN \
   useradd --home-dir /home/app --create-home --uid 5000 \
   --gid 5000 --shell /bin/bash --skel /dev/null app
 
+ENV PATH="/home/app/.deno/bin:$PATH"
+
 COPY --from=dumb-init /usr/bin/dumb-init /usr/bin/dumb-init
 COPY --from=kubectl /usr/bin/kubectl /usr/bin/kubectl
+COPY --from=deno /root/.deno /home/app/.deno
 
 COPY ./app.js /home/app/app.js
 
