@@ -28,7 +28,7 @@ RUN \
 COPY --from=dumb-init /usr/bin/dumb-init /usr/bin/dumb-init
 COPY --from=kubectl /usr/bin/kubectl /usr/bin/kubectl
 
-COPY ./out/app.js /home/app/app.js
+COPY ./app.js /home/app/app.js
 
 USER app:app
 WORKDIR /home/app

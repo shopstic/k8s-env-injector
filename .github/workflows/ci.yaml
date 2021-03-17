@@ -7,13 +7,6 @@ defaults:
     shell: bash
 
 jobs:
-  test-action:
-    name: Test action
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: shopstic/buildkit-action@1f9fcec58198318912298365d38d72d4ad7b4cb3
-        with:
-          milliseconds: 1000
   build-env:
     name: Build CI environment
     runs-on: ubuntu-20.04
@@ -29,13 +22,13 @@ jobs:
       - run: chmod +r ~/.docker/config.json
 
       - name: Build and push shell Docker image
-        env:
-          IMAGE_NAME: shopstic/k8s-pod-annotator-ci
-          IMAGE_TAG: ${{ hashFiles('shell/*') }}
-        run: |-
-          ./cli.sh ci_build_shell_image
+        uses: shopstic/buildkit-action@1.0.0
+        with:
+          context: ${{ github.workspace }}/shell
+          image: shopstic/k8s-pod-annotator-ci
+          tag: ${{ hashFiles('shell/*') }}
 
-  build-apps:
+  build-app:
     name: Build applications
     needs: build-env
     runs-on: ubuntu-20.04
@@ -67,3 +60,10 @@ jobs:
         run: |-
           du -sh "${DENO_DIR}" || true
           ./cli.sh ci_build_in_shell
+
+      - name: Build and push app Docker image
+        uses: shopstic/buildkit-action@1.0.0
+        with:
+          context: ${{ github.workspace }}/build
+          image: shopstic/k8s-pod-annotator
+          tag: ${{ github.sha }}
