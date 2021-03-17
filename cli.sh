@@ -48,8 +48,9 @@ ci_build_in_shell() {
     -v "${DENO_DIR}:/root/.cache/deno" \
     -e "DENO_DIR=/root/.cache/deno" \
     "${IMAGE_NAME}:${IMAGE_TAG}" \
-    bash -euo pipefail -l
+    bash -l
 
+set -euo pipefail
 ./cli.sh ci_build
 
 EOF
