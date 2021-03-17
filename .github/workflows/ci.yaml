@@ -22,11 +22,12 @@ jobs:
       - run: chmod +r ~/.docker/config.json
 
       - name: Build and push shell Docker image
-        uses: shopstic/buildkit-action@1.0.0
+        uses: shopstic/buildkit-action@1.0.1
         with:
           context: ${{ github.workspace }}/shell
           image: shopstic/k8s-pod-annotator-ci
           tag: ${{ hashFiles('shell/*') }}
+          skipIfExists: true
 
   build-app:
     name: Build applications
@@ -62,7 +63,7 @@ jobs:
           ./cli.sh ci_build_in_shell
 
       - name: Build and push app Docker image
-        uses: shopstic/buildkit-action@1.0.0
+        uses: shopstic/buildkit-action@1.0.1
         with:
           context: ${{ github.workspace }}/build
           image: shopstic/k8s-pod-annotator
