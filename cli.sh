@@ -80,9 +80,13 @@ code_quality() {
 
 compile() {
   mkdir -p ./out
-  # The sed replacement is a temporary workaround for https://github.com/denoland/deno/issues/9810
+  # This sed replacement is a temporary workaround for https://github.com/denoland/deno/issues/9810
   deno bundle ./src/app.ts | sed -e 's/await this\._loading\[ref2\] = loadSchema(ref2)/await (this._loading[ref2] = loadSchema(ref2))/g' > ./out/app.js
   ls -la ./out/app.js
+}
+
+watch() {
+  deno run --unstable --watch -A ./src/app.ts
 }
 
 "$@"

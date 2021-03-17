@@ -21,7 +21,7 @@ opine()
   .post("/mutate", (req, res) => {
     const admissionReview = validateV1AdmissionReview(req.parsedBody);
 
-    console.log("admissionReview", admissionReview);
+    console.log("admissionReview", JSON.stringify(admissionReview, null, 2));
 
     res.setStatus(400).send("TBD");
   })

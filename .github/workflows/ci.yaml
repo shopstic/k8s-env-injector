@@ -7,6 +7,13 @@ defaults:
     shell: bash
 
 jobs:
+  test-action:
+    name: Test action
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shopstic/buildkit-action@1f9fcec58198318912298365d38d72d4ad7b4cb3
+        with:
+          milliseconds: 1000
   build-env:
     name: Build CI environment
     runs-on: ubuntu-20.04
