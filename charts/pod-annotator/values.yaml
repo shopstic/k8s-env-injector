@@ -42,6 +42,7 @@ service:
 mutationWebhook:
   # must start with https:// and must not end with "/"
   baseUrl: ""
+  namespaceSelector: {}
 
 ingress:
   enabled: false

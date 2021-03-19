@@ -11,9 +11,10 @@ To test interaction with k8s, run a proxy, so that exposed address is available 
 ## Deployment
 
 Helm chart is provided in `charts` directory. 
-Most importantly, it requires `mutationWebhook.baseUrl` value to be specified. 
-
-`baseUrl` describes location where the application is accessible. It must start with `https://` and it mustn't end with `/` (e.g. `https://example.com` is a valid `baseUrl`).
+Two values that always should be specified are:
+- `mutationWebhook.namespaceSelector`. It should select only the namespace where application is deployed to.
+- `mutationWebhook.baseUrl` value to be specified. `baseUrl` describes location where the application is accessible. 
+  It must start with `https://` and it mustn't end with `/` (e.g. `https://example.com` is a valid `baseUrl`).
 
 Admission controllers must be accessible via `https`, so to make the application accessible reverse proxy that will handle `https` traffic should be placed in front. 
 

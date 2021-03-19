@@ -8,6 +8,8 @@ webhooks:
       url: {{ .Values.mutationWebhook.baseUrl }}/mutate
     timeoutSeconds: 5
     sideEffects: None
+    namespaceSelector:
+      {{- .Values.mutationWebhook.namespaceSelector | toYaml | nindent 6 }}
     objectSelector:
       matchExpressions:
         - key: "app.kubernetes.io/instance"
