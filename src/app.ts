@@ -14,9 +14,16 @@ const settings = loadSettings();
 const logger = loggerWithContext("main");
 
 const serverInterface = "0.0.0.0";
-const serverPort = 8080;
+const serverPort = 8443;
 
 const app = opine();
+
+const serverOptions = {
+  hostname: serverInterface,
+  port: serverPort,
+  certFile: settings.certFilePath,
+  keyFile: settings.keyFilePath,
+};
 
 app.use(json());
 
@@ -92,7 +99,7 @@ app
     logger.info(`sync-pod completed successfully`);
     res.setStatus(200).send({});
   })
-  .listen(`${serverInterface}:${serverPort}`);
+  .listen(serverOptions);
 
 logger.info(
   `k8s-env-injector Admission Controller started at ${serverInterface}:${serverPort}`,
