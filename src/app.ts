@@ -7,6 +7,9 @@ import {
   getNodeLabels,
   getPodOwnerReference,
 } from "./k8s-api.ts";
+import { loadSettings } from "./settings.ts";
+
+const settings = loadSettings();
 
 const logger = loggerWithContext("main");
 
@@ -30,46 +33,40 @@ app
   })
   .post("/mutate", (req, res) => {
     logger.info("Received admissionReview mutation request");
-    const webhookHost = req.headers.get("host");
-    if (!webhookHost) {
-      const message = `Unexpected server error, "host" header is not defined.`;
+    const webhookHost = settings.baseUrl;
+    const admissionReview = validateV1AdmissionReview(req.parsedBody);
+    if (!admissionReview.isSuccess) {
+      const message = "Validation of admissionReview request has failed.";
       logger.error(message);
-      res.setStatus(500).send(message);
+      res.setStatus(400).send(message);
+    } else if (!admissionReview.value.request) {
+      const message = 'Validation failed, "request" field is not defined.';
+      logger.error(message);
+      res.setStatus(400).send(message);
     } else {
-      const admissionReview = validateV1AdmissionReview(req.parsedBody);
-      if (!admissionReview.isSuccess) {
-        const message = "Validation of admissionReview request has failed.";
-        logger.error(message);
-        res.setStatus(400).send(message);
-      } else if (!admissionReview.value.request) {
-        const message = 'Validation failed, "request" field is not defined.';
+      const podValidation = validateV1Pod(
+        admissionReview.value.request.object,
+      );
+      if (!podValidation.isSuccess) {
+        const message = "Pod request validation has failed.";
         logger.error(message);
         res.setStatus(400).send(message);
       } else {
-        const podValidation = validateV1Pod(
-          admissionReview.value.request.object,
-        );
-        if (!podValidation.isSuccess) {
-          const message = "Pod request validation has failed.";
-          logger.error(message);
-          res.setStatus(400).send(message);
-        } else {
-          const podSpec = podValidation.value;
-          const patches = mutatePodAdmission({ pod: podSpec, webhookHost });
-          const base64EncodedPatch = btoa(JSON.stringify(patches));
-          const result = {
-            apiVersion: "admission.k8s.io/v1",
-            kind: "AdmissionReview",
-            response: {
-              uid: admissionReview.value.request.uid,
-              allowed: true,
-              patchType: "JSONPatch",
-              patch: base64EncodedPatch,
-            },
-          };
-          logger.info("Responding with 200 to MutatingWebhookConfiguration");
-          res.setStatus(200).send(result);
-        }
+        const podSpec = podValidation.value;
+        const patches = mutatePodAdmission({ pod: podSpec, webhookHost });
+        const base64EncodedPatch = btoa(JSON.stringify(patches));
+        const result = {
+          apiVersion: "admission.k8s.io/v1",
+          kind: "AdmissionReview",
+          response: {
+            uid: admissionReview.value.request.uid,
+            allowed: true,
+            patchType: "JSONPatch",
+            patch: base64EncodedPatch,
+          },
+        };
+        logger.info("Responding with 200 to MutatingWebhookConfiguration");
+        res.setStatus(200).send(result);
       }
     }
   })

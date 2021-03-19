@@ -118,7 +118,7 @@ function initContainer(
       {
         name: "ENDPOINT",
         value:
-          `https://${webhookHost}/sync-pod?nodeName=$(NODE_NAME)&podName=$(POD_NAME)&namespace=$(NAMESPACE)&configMapName=$(CONFIG_MAP_NAME)`,
+          `${webhookHost}/sync-pod?nodeName=$(NODE_NAME)&podName=$(POD_NAME)&namespace=$(NAMESPACE)&configMapName=$(CONFIG_MAP_NAME)`,
       },
     ],
     args: ["-X", "POST", "$(ENDPOINT)"],
