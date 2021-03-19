@@ -19,6 +19,7 @@ function generateConfigMapName(pod: SimplifiedPod): string {
   const suffix = `node-labels-${uuid.v4.generate()}`;
   const maxNameLength = 63;
   let prefix: string;
+  // deno-lint-ignore no-explicit-any
   const untypedPod = pod as any;
   if (untypedPod.metadata && untypedPod.metadata.generateName) {
     prefix = untypedPod.metadata.generateName;
