@@ -1,9 +1,9 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: {{ include "pod-annotator.fullname" . }}
+  name: {{ include "env-injector.fullname" . }}
 webhooks:
-  - name: {{ include "pod-annotator.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  - name: {{ include "env-injector.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     clientConfig:
       url: {{ .Values.mutationWebhook.baseUrl }}/mutate
     timeoutSeconds: 5

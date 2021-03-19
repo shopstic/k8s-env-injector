@@ -95,5 +95,5 @@ app
   .listen(`${serverInterface}:${serverPort}`);
 
 logger.info(
-  `Pod annotation Admission Controller started at ${serverInterface}:${serverPort}`,
+  `k8s-env-injector Admission Controller started at ${serverInterface}:${serverPort}`,
 );

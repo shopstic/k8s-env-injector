@@ -8,7 +8,7 @@ docker run \
   -it \
   --rm \
   --privileged \
-  --hostname=k8s-pod-annotator-shell \
+  --hostname=k8s-env-injector-shell \
   -v "/var/run/docker.sock:/var/run/docker.sock" \
   -v "${HOME}/.kube:/root/.kube" \
   -v "${DENO_DIR}:/root/.cache/deno" \

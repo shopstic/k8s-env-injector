@@ -1,11 +1,11 @@
-# Default values for pod-annotator.
+# Default values for env-injector.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: shopstic/k8s-pod-annotator
+  repository: shopstic/k8s-env-injector
   pullPolicy: IfNotPresent
   tag: "71fe20a7941f2c1af76fa56f67c11e6ba99168ac"
 

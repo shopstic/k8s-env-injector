@@ -25,7 +25,7 @@ jobs:
         uses: shopstic/buildkit-action@1.0.1
         with:
           context: ${{ github.workspace }}/shell
-          image: shopstic/k8s-pod-annotator-ci
+          image: shopstic/k8s-env-injector-ci
           tag: ${{ hashFiles('shell/*') }}
           skipIfExists: true
 
@@ -55,7 +55,7 @@ jobs:
 
       - name: Build
         env:
-          IMAGE_NAME: shopstic/k8s-pod-annotator-ci
+          IMAGE_NAME: shopstic/k8s-env-injector-ci
           IMAGE_TAG: ${{ hashFiles('shell/*') }}
           DENO_DIR: ${{ github.workspace }}/.cache/deno
         run: |-
@@ -66,5 +66,5 @@ jobs:
         uses: shopstic/buildkit-action@1.0.1
         with:
           context: ${{ github.workspace }}/build
-          image: shopstic/k8s-pod-annotator
+          image: shopstic/k8s-env-injector
           tag: ${{ github.sha }}
