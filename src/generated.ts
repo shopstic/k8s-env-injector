@@ -823,6 +823,7 @@ export const jsonSchema = {
           "type": "object",
           "required": [],
           "additionalProperties": true,
+          "nullable": true,
         },
         "operation": {
           "description":
@@ -1220,6 +1221,7 @@ export const jsonSchema = {
               "type": "object",
               "required": [],
               "additionalProperties": true,
+              "nullable": true,
             },
             "operation": {
               "description":
@@ -1888,3 +1890,4 @@ export const jsonSchema = {
   },
   "$schema": "http://json-schema.org/draft-07/schema",
 };
+

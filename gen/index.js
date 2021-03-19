@@ -15,6 +15,9 @@ async function main() {
   });
   migrate.draft7(schema);
 
+  schema.definitions["v1.AdmissionRequest"].properties.oldObject.nullable =
+    true;
+
   const migratedSchema = {
     definitions: schema.definitions,
     "$schema": schema["$schema"],
