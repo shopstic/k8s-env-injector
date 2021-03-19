@@ -1,0 +1,23 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "pod-annotator.fullname" . }}
+webhooks:
+  - name: {{ include "pod-annotator.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+    clientConfig:
+      url: {{ .Values.mutationWebhook.baseUrl }}/mutate
+    timeoutSeconds: 5
+    sideEffects: None
+    objectSelector:
+      matchExpressions:
+        - key: "app.kubernetes.io/instance"
+          operator: NotIn
+          values:
+            - {{ .Release.Name }}
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: ["*"]
+        apiVersions: ["*"]
+        resources: ["pods"]
+        scope: "Namespaced"
+    admissionReviewVersions: ["v1"]

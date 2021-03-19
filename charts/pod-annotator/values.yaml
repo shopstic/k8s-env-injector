@@ -5,10 +5,9 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: shopstic/k8s-pod-annotator
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "71fe20a7941f2c1af76fa56f67c11e6ba99168ac"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -39,6 +38,10 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
+
+mutationWebhook:
+  # must start with https:// and must not end with "/"
+  baseUrl: ""
 
 ingress:
   enabled: false

@@ -1,0 +1,66 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "pod-annotator.serviceAccountName" . }}
+  labels:
+    {{- include "pod-annotator.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pod-annotator.fullname" . }}
+  labels:
+    {{- include "pod-annotator.labels" . | nindent 4 }}
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["list" , "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "pod-annotator.fullname" . }}
+  labels:
+    {{- include "pod-annotator.labels" . | nindent 4 }}
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["create", "get"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list" , "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "pod-annotator.fullname" . }}
+  labels:
+    {{- include "pod-annotator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "pod-annotator.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "pod-annotator.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "pod-annotator.fullname" . }}
+  labels:
+    {{- include "pod-annotator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "pod-annotator.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "pod-annotator.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
