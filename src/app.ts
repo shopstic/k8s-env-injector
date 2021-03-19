@@ -71,7 +71,7 @@ app
     }
   })
   .post("/sync-pod", async (req, res) => {
-    logger.info(`Received got sync-pod request: ${req.query}`);
+    logger.info(`Received got sync-pod request: ${JSON.stringify(req.query)}`);
     const { nodeName, podName, namespace, configMapName } = req.query;
     const nodeLabelsPromise = getNodeLabels(nodeName);
     const podOwnerReferencesPromise = getPodOwnerReference({
