@@ -35,21 +35,35 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: SERVER_BASE_URL
-              value: {{ .Values.mutationWebhook.baseUrl }}
+              value: https://{{ include "env-injector.fullname" . }}.{{ .Release.Namespace }}.svc
+            - name: CERT_FILE_PATH
+              value: "/env-injector-certs/cert.pem"
+            - name: KEY_FILE_PATH
+              value: "/env-injector-certs/key.pem"
+          volumeMounts:
+            - name: cert-secret
+              mountPath: "/env-injector-certs"
+              readOnly: true
           ports:
-            - name: http
-              containerPort: 8080
+            - name: https
+              containerPort: 8443
               protocol: TCP
           livenessProbe:
             httpGet:
+              scheme: HTTPS
               path: /
-              port: http
+              port: https
           readinessProbe:
             httpGet:
+              scheme: HTTPS
               path: /
-              port: http
+              port: https
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: cert-secret
+          secret:
+            secretName: {{ include "env-injector.fullname" . }}-cert
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

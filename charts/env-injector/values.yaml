@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: shopstic/k8s-env-injector
   pullPolicy: IfNotPresent
-  tag: "71fe20a7941f2c1af76fa56f67c11e6ba99168ac"
+  tag: "f714be6cd364788ac63b0d8817a6589cc734f7b8"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -37,25 +37,15 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 443
 
 mutationWebhook:
-  # must start with https:// and must not end with "/"
-  baseUrl: ""
   namespaceSelector: {}
-
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths: []
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  certificate:
+    # in PEM, base64 encoded
+    key: ""
+    # in PEM, base64 encoded
+    cert: ""
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

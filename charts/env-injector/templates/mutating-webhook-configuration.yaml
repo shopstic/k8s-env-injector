@@ -5,7 +5,12 @@ metadata:
 webhooks:
   - name: {{ include "env-injector.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     clientConfig:
-      url: {{ .Values.mutationWebhook.baseUrl }}/mutate
+      caBundle: {{ .Values.mutationWebhook.certificate.cert | quote }}
+      service:
+        namespace: {{ .Release.Namespace }}
+        name: {{ include "env-injector.fullname" . }}
+        path: "/mutate"
+        port: {{ .Values.service.port }}
     timeoutSeconds: 5
     sideEffects: None
     namespaceSelector:

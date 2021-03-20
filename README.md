@@ -1,25 +1,32 @@
 # k8s-env-injector
-
-The purpose of k8s-env-injector is to inject node labels as environment variables to pods from a selected namespace.
+The purpose of k8s-env-injector is to inject node labels as environment variables to pods in a selected namespace.
 
 ## Local development
 
 Enter shell with `./shell.sh` and then watch for changes with `./cli.sh watch`.
 
-To test interaction with k8s, run a proxy, so that exposed address is available through `https` (e.g. using [ngrok](https://ngrok.com): `ngrok http 8080`).
-
 ## Deployment
 
-Helm chart is provided in `charts` directory. 
-Two values that always should be specified are:
-- `mutationWebhook.namespaceSelector`. It should select only the namespace where k8s-env-injector is deployed to.
-- `mutationWebhook.baseUrl` value to be specified. `baseUrl` describes location where the k8s-env-injector is exposed at. 
-  It must start with `https://` and it mustn't end with `/` (e.g. `https://example.com` is a valid `baseUrl`).
+Helm chart is provided in `charts` directory.
 
-Admission controllers must be accessible via `https`. 
-To make k8s-env-injector accessible, reverse proxy handling `https` traffic should be placed in front. 
+### Generating certificates
+Kubernetes requires admission webhooks to be accessible through https.
 
-For testing deployment on minikube, something like [mitmproxy](https://github.com/mitmproxy/mitmproxy) might come in handy:
+Script `certs.sh` contains helper method for generating certificates that will be ready to use in Helm chart (remember to review the script before actually using those certificates in your cluster):
+
 ```shell
-mitmproxy -p 8080 --mode reverse:http://k8s-env-injector.mynamespace.svc.cluster.local
+> export ENV_INJECTOR_SERVICE_NAME="env-injector"
+> export ENV_INJECTOR_SERVICE_NAME="namespace-where-env-injector-will-be-deployed-to"
+> export ENV_INJECTOR_CERT_VALIDITY_DAYS="365"
+> ./certs.sh generate_cert
 ```
+
+It will generate three files: `key.pem`, `cert.pem` and `private.crt`.
+
+### Using Helm chart
+
+Helm chart is provided in `charts` directory. 
+Values that always need to be specified:
+- `mutationWebhook.namespaceSelector`. It should select only the namespace where k8s-env-injector is deployed to.
+- `mutationWebhook.certificate.cert` - base64 encoded `cert.pem` from the previous step.
+- `mutationWebhook.certificate.key` - base64 encoded `key.pem` from the previous step.
