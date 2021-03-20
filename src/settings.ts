@@ -6,8 +6,16 @@ export interface Settings {
 
 export function loadSettings(): Settings {
   return {
-    baseUrl: Deno.env.get("SERVER_BASE_URL")!,
-    certFilePath: Deno.env.get("CERT_FILE_PATH")!,
-    keyFilePath: Deno.env.get("KEY_FILE_PATH")!,
+    baseUrl: readFromEnv("SERVER_BASE_URL"),
+    certFilePath: readFromEnv("CERT_FILE_PATH"),
+    keyFilePath: readFromEnv("KEY_FILE_PATH"),
   };
+}
+
+function readFromEnv(envName: string): string {
+  const result = Deno.env.get(envName);
+  if (result === undefined) {
+    throw new Error(`Enviroment variable ${envName} is required.`);
+  }
+  return result;
 }
