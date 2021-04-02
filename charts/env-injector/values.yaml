@@ -40,7 +40,8 @@ service:
   port: 443
 
 mutationWebhook:
-  namespaceSelector: {}
+  # namespaceSelector is required
+  # namespaceSelector: {}
   certificate:
     # in PEM, base64 encoded
     key: ""
