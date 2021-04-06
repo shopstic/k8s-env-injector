@@ -8,8 +8,10 @@ defaults:
 
 jobs:
   build-env:
-    name: Build CI environment
+    name: Build CI environment image
     runs-on: ubuntu-20.04
+    outputs:
+      image: ${{ steps.buildkit.outputs.image }}:${{ steps.buildkit.outputs.tag }}    
     steps:
       - uses: actions/checkout@v2
 
@@ -22,15 +24,16 @@ jobs:
       - run: chmod +r ~/.docker/config.json
 
       - name: Build and push shell Docker image
-        uses: shopstic/buildkit-action@1.0.1
+        id: buildkit
+        uses: shopstic/buildkit-action@1.0.5
         with:
-          context: ${{ github.workspace }}/shell
+          context: ${{ github.workspace }}/images/shell
           image: shopstic/k8s-env-injector-ci
           tag: ${{ hashFiles('shell/*') }}
           skipIfExists: true
 
   build-app:
-    name: Build applications
+    name: Build app image
     needs: build-env
     runs-on: ubuntu-20.04
     steps:
@@ -55,16 +58,20 @@ jobs:
 
       - name: Build
         env:
-          IMAGE_NAME: shopstic/k8s-env-injector-ci
-          IMAGE_TAG: ${{ hashFiles('shell/*') }}
+          SHELL_IMAGE: ${{ needs.build-env.outputs.image }}
           DENO_DIR: ${{ github.workspace }}/.cache/deno
         run: |-
-          du -sh "${DENO_DIR}" || true
+          if ls "${DENO _DIR}" > /dev/null 2>&1; then
+            du -sh "${DENO_DIR}"
+          fi
+
           ./cli.sh ci_build_in_shell
 
       - name: Build and push app Docker image
-        uses: shopstic/buildkit-action@1.0.1
+        uses: shopstic/buildkit-action@1.0.5
+        if: github.ref == 'refs/heads/main'
         with:
           context: ${{ github.workspace }}/build
           image: shopstic/k8s-env-injector
           tag: ${{ github.sha }}
+          skipIfExists: false

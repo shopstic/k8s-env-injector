@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-docker build ./shell
-IMAGE_ID=$(docker build -q ./shell)
+docker build ./images/shell
+IMAGE_ID=$(docker build -q ./images/shell)
 
 docker run \
   -it \
