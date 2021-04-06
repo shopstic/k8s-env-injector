@@ -71,7 +71,7 @@ jobs:
         uses: shopstic/buildkit-action@1.0.5
         if: github.ref == 'refs/heads/main'
         with:
-          context: ${{ github.workspace }}/build
+          context: ${{ github.workspace }}/images/app
           image: shopstic/k8s-env-injector
           tag: ${{ github.sha }}
           skipIfExists: false
