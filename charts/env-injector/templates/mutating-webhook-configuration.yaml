@@ -21,7 +21,14 @@ webhooks:
           operator: NotIn
           values:
             - {{ .Release.Name }}
-    rules:
+        {{- with .Values.objectSelector.matchExpressions }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.objectSelector.matchLabels }}
+      matchLabels:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      rules:
       - operations: ["CREATE"]
         apiGroups: ["*"]
         apiVersions: ["*"]

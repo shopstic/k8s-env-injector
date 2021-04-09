@@ -86,6 +86,7 @@ jobs:
 
           ./cli.sh code_quality
           ./cli.sh test
+          ./cli.sh test_helm_chart
           ./cli.sh compile
           EOF
 

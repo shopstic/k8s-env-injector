@@ -19,6 +19,25 @@ code_quality() {
   # deno test -A
 }
 
+test_helm_chart() {
+  cat << EOF | helm template -f - ./charts/env-injector/ > /dev/null
+mutationWebhook:
+  namespaceSelector:
+    matchExpressions:
+      - key: shopstic.com/foo
+        operator: In
+        values: ["bar"]
+  objectSelector:
+    matchExpressions:
+      - key: shopstic.com/foo
+        operator: In
+        values: ["bar"]
+  certificate:
+    key: "dummy"
+    cert: "dummy"
+EOF
+}
+
 test() {
   deno test -A ./test
 }

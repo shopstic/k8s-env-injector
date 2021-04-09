@@ -41,7 +41,7 @@ service:
 
 mutationWebhook:
   # namespaceSelector is required
-  # namespaceSelector: {}
+  namespaceSelector:
   certificate:
     # in PEM, base64 encoded
     key: ""
@@ -65,3 +65,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+objectSelector:
+  matchExpressions: []
+  matchLabels: {}

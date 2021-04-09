@@ -19,7 +19,7 @@ ENV LANG=C.UTF-8
 ENV TERM=xterm-256color
 
 RUN \
-  apt update && apt install -y ca-certificates
+  apt-get update && apt-get install -y ca-certificates
   
 COPY --from=bin-dumb-init /usr/bin/dumb-init /usr/bin/dumb-init
 COPY --from=bin-kubectl /usr/bin/kubectl /usr/bin/kubectl
