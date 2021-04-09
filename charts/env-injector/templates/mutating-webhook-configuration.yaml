@@ -17,14 +17,13 @@ webhooks:
       {{- required "Value .Values.mutationWebhook.namespaceSelector is required" .Values.mutationWebhook.namespaceSelector | toYaml | nindent 6 }}
     objectSelector:
       matchExpressions:
-        - key: "app.kubernetes.io/instance"
+        - key: "shopstic.com/env-injector-controller"
           operator: NotIn
-          values:
-            - {{ .Release.Name }}
-        {{- with .Values.objectSelector.matchExpressions }}
+          values: ["true"]
+        {{- with .Values.mutationWebhook.objectSelector.matchExpressions }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.objectSelector.matchLabels }}
+      {{- with .Values.mutationWebhook.objectSelector.matchLabels }}
       matchLabels:
         {{- toYaml . | nindent 8 }}
       {{- end }}
