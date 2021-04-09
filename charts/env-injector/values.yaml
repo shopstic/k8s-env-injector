@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: shopstic/k8s-env-injector
   pullPolicy: IfNotPresent
-  tag: "f714be6cd364788ac63b0d8817a6589cc734f7b8"
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
