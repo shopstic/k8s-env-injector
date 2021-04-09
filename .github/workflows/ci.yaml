@@ -73,7 +73,21 @@ jobs:
             du -sh "${DENO_DIR}"
           fi
 
-          ./cli.sh ci_build_in_shell
+          cat <<EOF | docker run \
+            --workdir /repo \
+            -i \
+            --rm \
+            -v "${GITHUB_WORKSPACE}:/repo" \
+            -v "${DENO_DIR}:/root/.cache/deno" \
+            -e "DENO_DIR=/root/.cache/deno" \
+            "${SHELL_IMAGE}" \
+            bash -l
+          set -euo pipefail
+
+          ./cli.sh code_quality
+          ./cli.sh test
+          ./cli.sh compile
+          EOF
 
       - name: Build and push app Docker image
         uses: shopstic/buildkit-action@1.0.5
@@ -83,3 +97,29 @@ jobs:
           image: shopstic/k8s-env-injector
           tag: ${{ github.sha }}
           skipIfExists: false
+
+      - name: Build and push Helm Chart
+        if: github.ref == 'refs/heads/main'
+        env:
+          SHELL_IMAGE: ${{ needs.build-env.outputs.image }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |-
+          cat <<EOF | docker run \
+            --workdir /repo \
+            -i \
+            --rm \
+            -e GITHUB_SHA \
+            -v "${GITHUB_WORKSPACE}:/repo" \
+            -v "${HOME}/.docker/config.json:/root/.docker/config.json" \
+            "${SHELL_IMAGE}" \
+            bash -l
+          set -euo pipefail
+
+          export HELM_EXPERIMENTAL_OCI=1
+          export HELM_REGISTRY_CONFIG=/root/.docker/config.json
+
+          yq e '.appVersion = env(GITHUB_SHA)' -i ./charts/env-injector/Chart.yaml 
+          helm chart save ./charts/env-injector "ghcr.io/shopstic/chart-env-injector:${GITHUB_SHA}"
+          helm chart push "ghcr.io/shopstic/chart-env-injector:${GITHUB_SHA}"
+          
+          EOF

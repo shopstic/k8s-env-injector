@@ -1,8 +1,8 @@
 import { validationUtils } from "./deps.ts";
 import { jsonSchema } from "./generated.ts";
 import type { V1AdmissionReview } from "./generated.ts";
-import { simplifiedPodJsonSchema } from "./schemas.ts";
-import type { SimplifiedPod } from "./schemas.ts";
+import { admissionReviewRequestObjectPodSchema } from "./schemas.ts";
+import type { AdmissionReviewRequestObjectPod } from "./schemas.ts";
 
 export const validateV1AdmissionReview = validationUtils
   .createDefinitionValidator<
@@ -29,12 +29,12 @@ export const validateV1AdmissionReview = validationUtils
   });
 
 export const validateV1Pod = validationUtils.createDefinitionValidator<
-  SimplifiedPod
+  AdmissionReviewRequestObjectPod
 >({
   schema: JSON.parse(JSON.stringify(
     {
       "definitions": {
-        "pod": simplifiedPodJsonSchema,
+        "pod": admissionReviewRequestObjectPodSchema,
       },
     },
     null,

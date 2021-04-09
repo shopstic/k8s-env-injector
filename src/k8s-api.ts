@@ -1,5 +1,6 @@
 import {
   execUtils,
+  IoK8sApiCoreV1ConfigMap,
   IoK8sApimachineryPkgApisMetaV1OwnerReference,
 } from "./deps.ts";
 
@@ -66,7 +67,8 @@ export async function createConfigMap(
         value,
       ]) => [`NODE_LABEL_${key.replace(/\W/g, "_").toUpperCase()}`, value]),
   );
-  const configMapDefinition = {
+
+  const configMapDefinition: IoK8sApiCoreV1ConfigMap = {
     apiVersion: "v1",
     kind: "ConfigMap",
     metadata: {
@@ -76,6 +78,7 @@ export async function createConfigMap(
     },
     data: mappedData,
   };
+
   await execUtils.inheritExec({
     run: {
       cmd: ["kubectl", "apply", "-f", "-"],

@@ -2,6 +2,12 @@ import { typebox } from "./deps.ts";
 
 const Type = typebox.Type;
 
+function RelaxedObject<T extends typebox.TProperties>(
+  properties: T,
+): typebox.TObject<T> {
+  return Type.Object<T>(properties, { additionalProperties: true });
+}
+
 export const PatchOperationSchema = Type.Union([
   Type.Object({
     path: Type.String(),
@@ -44,64 +50,69 @@ export const PatchOperationSchema = Type.Union([
 
 export type PatchOperation = typebox.Static<typeof PatchOperationSchema>;
 
-export const configMapEnvSourceJsonSchema = Type.Object({
+export const configMapEnvSourceSchema = RelaxedObject({
   name: Type.String(),
   optional: Type.Optional(Type.Boolean()),
 });
 
-export const configMapKeySelectorJsonSchema = Type.Object({
+export const configMapKeySelectorSchema = RelaxedObject({
   key: Type.String(),
   name: Type.String(),
   optional: Type.Optional(Type.Boolean()),
 });
 
-export const objectFieldSelectorJsonSchema = Type.Object({
+export const objectFieldSelectorSchema = RelaxedObject({
   apiVersion: Type.Optional(Type.String()),
   fieldPath: Type.String(),
 });
 
-export const resourceFieldSelectorJsonSchema = Type.Object({
+export const resourceFieldSelectorSchema = RelaxedObject({
   containerName: Type.String(),
   resource: Type.Optional(Type.String()),
 });
 
-export const simplifiedEnvVarSourceJsonSchema = Type.Object({
-  configMapKeyRef: Type.Optional(configMapKeySelectorJsonSchema),
-  fieldRef: Type.Optional(objectFieldSelectorJsonSchema),
-  resourceFieldRef: Type.Optional(resourceFieldSelectorJsonSchema),
+export const simplifiedEnvVarSourceSchema = RelaxedObject({
+  configMapKeyRef: Type.Optional(configMapKeySelectorSchema),
+  fieldRef: Type.Optional(objectFieldSelectorSchema),
+  resourceFieldRef: Type.Optional(resourceFieldSelectorSchema),
 });
 
-export const envVarJsonSchema = Type.Object({
+export const envVarSchema = RelaxedObject({
   name: Type.String(),
   value: Type.Optional(Type.String()),
-  valueFrom: Type.Optional(simplifiedEnvVarSourceJsonSchema),
+  valueFrom: Type.Optional(simplifiedEnvVarSourceSchema),
 });
 
-export const envFromJsonSchema = Type.Object({
-  configMapRef: Type.Optional(configMapEnvSourceJsonSchema),
+export const envFromSchema = RelaxedObject({
+  configMapRef: Type.Optional(configMapEnvSourceSchema),
   prefix: Type.Optional(Type.String()),
 });
 
-export const simplifiedContainerJsonSchema = Type.Object({
+export const simplifiedContainerSchema = RelaxedObject({
   name: Type.String(),
-  args: Type.Optional(Type.Array(Type.String)),
-  command: Type.Optional(Type.Array(Type.String)),
-  env: Type.Optional(Type.Array(envVarJsonSchema)),
-  envFrom: Type.Optional(Type.Array(envFromJsonSchema)),
+  args: Type.Optional(Type.Array(Type.String())),
+  command: Type.Optional(Type.Array(Type.String())),
+  env: Type.Optional(Type.Array(envVarSchema)),
+  envFrom: Type.Optional(Type.Array(envFromSchema)),
   image: Type.String(),
   imagePullPolicy: Type.Optional(Type.String()),
 });
 
 export type SimplifiedContainer = typebox.Static<
-  typeof simplifiedContainerJsonSchema
+  typeof simplifiedContainerSchema
 >;
 
-export const simplifiedPodJsonSchema = Type.Object({
+export const admissionReviewRequestObjectPodSchema = RelaxedObject({
   kind: Type.Literal("Pod"),
-  spec: Type.Object({
-    containers: Type.Array(simplifiedContainerJsonSchema),
-    initContainers: Type.Optional(Type.Array(simplifiedContainerJsonSchema)),
+  metadata: Type.Optional(RelaxedObject({
+    generateName: Type.Optional(Type.String()),
+  })),
+  spec: RelaxedObject({
+    containers: Type.Array(simplifiedContainerSchema),
+    initContainers: Type.Optional(Type.Array(simplifiedContainerSchema)),
   }),
 });
 
-export type SimplifiedPod = typebox.Static<typeof simplifiedPodJsonSchema>;
+export type AdmissionReviewRequestObjectPod = typebox.Static<
+  typeof admissionReviewRequestObjectPodSchema
+>;
