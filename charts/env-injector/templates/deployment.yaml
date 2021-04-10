@@ -50,14 +50,18 @@ spec:
               containerPort: 8443
               protocol: TCP
           livenessProbe:
+            initialDelaySeconds: 1
+            periodSeconds: 5
             httpGet:
               scheme: HTTPS
-              path: /
+              path: /healthz
               port: https
           readinessProbe:
+            initialDelaySeconds: 1
+            periodSeconds: 5
             httpGet:
               scheme: HTTPS
-              path: /
+              path: /healthz
               port: https
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
