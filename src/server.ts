@@ -20,7 +20,9 @@ const validateSyncPodQuery = validationUtils.createValidator(Type.Object({
   configMapName: Type.String({ minLength: 1 }),
 }));
 
-export function create(settings: { webhookExternalBaseUrl: string }) {
+export function create(
+  settings: { webhookExternalBaseUrl: string; defaultConfigMapPrefix: string },
+) {
   const app = opine();
 
   app.use(opineJson());
@@ -56,6 +58,7 @@ export function create(settings: { webhookExternalBaseUrl: string }) {
           const patches = mutatePodAdmission({
             pod: podSpec,
             webhookExternalBaseUrl: settings.webhookExternalBaseUrl,
+            defaultConfigMapPrefix: settings.defaultConfigMapPrefix,
           });
           const base64EncodedPatch = btoa(JSON.stringify(patches));
           const result: V1AdmissionReview = {

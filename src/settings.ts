@@ -1,5 +1,6 @@
 export interface Settings {
   baseUrl: string;
+  defaultConfigMapPrefix: string;
   certFilePath: string;
   keyFilePath: string;
 }
@@ -7,6 +8,7 @@ export interface Settings {
 export function loadSettings(): Settings {
   return {
     baseUrl: readFromEnv("SERVER_BASE_URL"),
+    defaultConfigMapPrefix: readFromEnv("DEFAULT_CONFIG_MAP_PREFIX"),
     certFilePath: readFromEnv("CERT_FILE_PATH"),
     keyFilePath: readFromEnv("KEY_FILE_PATH"),
   };

@@ -4,31 +4,42 @@ import type {
 } from "./schemas.ts";
 import { jsonPatch, uuid } from "./deps.ts";
 
-export function mutatePodAdmission({ pod, webhookExternalBaseUrl }: {
-  pod: AdmissionReviewRequestObjectPod;
-  webhookExternalBaseUrl: string;
-}): jsonPatch.Operation[] {
-  const configMapName = generateConfigMapName(pod);
+export function mutatePodAdmission(
+  { pod, webhookExternalBaseUrl, defaultConfigMapPrefix }: {
+    pod: AdmissionReviewRequestObjectPod;
+    webhookExternalBaseUrl: string;
+    defaultConfigMapPrefix: string;
+  },
+): jsonPatch.Operation[] {
+  const configMapName = generateConfigMapName(pod, defaultConfigMapPrefix);
   const clonedPod: AdmissionReviewRequestObjectPod = JSON.parse(
     JSON.stringify(pod),
   );
+
   addConfigMapBasedEnvVars({ pod: clonedPod, configMapName });
   addInitContainer({ pod: clonedPod, configMapName, webhookExternalBaseUrl });
+
   return jsonPatch.compare(pod, clonedPod);
 }
 
-function generateConfigMapName(pod: AdmissionReviewRequestObjectPod): string {
+function generateConfigMapName(
+  pod: AdmissionReviewRequestObjectPod,
+  defaultPrefix: string,
+): string {
   const suffix = `node-labels-${uuid.v4.generate()}`;
   const maxNameLength = 63;
-  let prefix: string;
-
   const generateName = pod.metadata?.generateName;
 
-  if (generateName) {
-    prefix = generateName;
-  } else {
-    prefix = `generated-cm-`;
-  }
+  const prefix = (() => {
+    if (generateName) {
+      if (!generateName.endsWith("-")) {
+        return generateName + "-";
+      }
+      return generateName;
+    } else {
+      return defaultPrefix;
+    }
+  })();
 
   return `${prefix.substring(0, maxNameLength - suffix.length)}${suffix}`;
 }

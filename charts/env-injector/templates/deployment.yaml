@@ -41,6 +41,8 @@ spec:
               value: "/env-injector-certs/cert.pem"
             - name: KEY_FILE_PATH
               value: "/env-injector-certs/key.pem"
+            - name: DEFAULT_CONFIG_MAP_PREFIX
+              value: {{ .Values..Values.mutationWebhook.defaultConfigMapPrefix | quote}}
           volumeMounts:
             - name: cert-secret
               mountPath: "/env-injector-certs"

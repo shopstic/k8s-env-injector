@@ -40,13 +40,15 @@ service:
   port: 443
 
 mutationWebhook:
+  defaultConfigMapPrefix: env-injector
+  
   # namespaceSelector is required
   namespaceSelector:
 
   objectSelector:
     matchExpressions: []
     matchLabels: {}
-    
+
   certificate:
     # in PEM, base64 encoded
     key: ""

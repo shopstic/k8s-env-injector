@@ -12,7 +12,10 @@ async function readFixture(fixture: string) {
 }
 describe("/healthz", function () {
   it("should return 200", function (done) {
-    const app = createServer({ webhookExternalBaseUrl: "http://foo.bar" });
+    const app = createServer({
+      webhookExternalBaseUrl: "http://foo.bar",
+      defaultConfigMapPrefix: "env-injector",
+    });
 
     superdeno(app)
       .head("/healthz")
@@ -22,7 +25,10 @@ describe("/healthz", function () {
 
 describe("/mutate", function () {
   it("should return a correct JSONPatch response", async function (done) {
-    const app = createServer({ webhookExternalBaseUrl: "http://foo.bar" });
+    const app = createServer({
+      webhookExternalBaseUrl: "http://foo.bar",
+      defaultConfigMapPrefix: "env-injector",
+    });
     const requestPayload = await readFixture("mutate/1-request.json");
 
     superdeno(app)
