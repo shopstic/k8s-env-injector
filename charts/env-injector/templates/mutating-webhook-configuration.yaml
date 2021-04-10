@@ -27,7 +27,7 @@ webhooks:
       matchLabels:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      rules:
+    rules:
       - operations: ["CREATE"]
         apiGroups: ["*"]
         apiVersions: ["*"]
