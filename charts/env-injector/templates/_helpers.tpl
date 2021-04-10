@@ -40,7 +40,6 @@ helm.sh/chart: {{ include "env-injector.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-shopstic.com/env-injector-controller: "true"
 {{- end }}
 
 {{/*
