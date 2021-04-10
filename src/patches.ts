@@ -26,20 +26,11 @@ function generateConfigMapName(
   pod: AdmissionReviewRequestObjectPod,
   defaultPrefix: string,
 ): string {
-  const suffix = `node-labels-${uuid.v4.generate()}`;
+  const suffix = `env-${uuid.v4.generate()}`;
   const maxNameLength = 63;
   const generateName = pod.metadata?.generateName;
 
-  const prefix = (() => {
-    if (generateName) {
-      if (!generateName.endsWith("-")) {
-        return generateName + "-";
-      }
-      return generateName;
-    } else {
-      return defaultPrefix;
-    }
-  })();
+  const prefix = generateName || defaultPrefix;
 
   return `${prefix.substring(0, maxNameLength - suffix.length)}${suffix}`;
 }
