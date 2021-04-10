@@ -5,7 +5,10 @@ import { create as createServer } from "./server.ts";
 const settings = loadSettings();
 
 const logger = loggerWithContext("main");
-const server = createServer({ webhookExternalBaseUrl: settings.baseUrl });
+const server = createServer({
+  webhookExternalBaseUrl: settings.baseUrl,
+  defaultConfigMapPrefix: settings.defaultConfigMapPrefix,
+});
 
 const serverInterface = "0.0.0.0";
 const serverPort = 8443;
