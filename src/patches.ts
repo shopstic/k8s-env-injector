@@ -3,6 +3,7 @@ import type {
   SimplifiedContainer,
 } from "./schemas.ts";
 import { jsonPatch, uuid } from "./deps.ts";
+import { k8s } from "./deps.ts";
 
 export function mutatePodAdmission(
   { pod, webhookExternalBaseUrl, defaultConfigMapPrefix }: {
@@ -99,10 +100,11 @@ function initContainer(
     configMapName: string;
     webhookExternalBaseUrl: string;
   },
-): SimplifiedContainer {
-  return {
+): k8s.IoK8sApiCoreV1Container {
+  return k8s.createK8sContainer({
     name: "node-labels-to-configmap-populator",
-    image: "curlimages/curl:7.75.0",
+    image:
+      "docker.io/curlimages/curl:7.76.0@sha256:eba6932609babc097c5c26c5b738a3fa6b43c7e0d5e4a5e32956e2c2e7f5acd1",
     imagePullPolicy: "IfNotPresent",
     env: [
       {
@@ -130,15 +132,20 @@ function initContainer(
         },
       },
       {
-        name: "CONFIG_MAP_NAME",
-        value: configMapName,
-      },
-      {
-        name: "ENDPOINT",
-        value:
-          `${webhookExternalBaseUrl}/sync-pod?nodeName=$(NODE_NAME)&podName=$(POD_NAME)&namespace=$(NAMESPACE)&configMapName=$(CONFIG_MAP_NAME)`,
+        name: "CONFIG_MAP_EXISTENCE_TEST",
+        valueFrom: {
+          configMapKeyRef: {
+            optional: true,
+            name: configMapName,
+            key: "NODE_LABEL_KUBERNETES_IO_HOSTNAME",
+          },
+        },
       },
     ],
-    args: ["-kX", "POST", "$(ENDPOINT)"],
-  };
+    command: [
+      "sh",
+      "-c",
+      `if [[ "\${CONFIG_MAP_EXISTENCE_TEST}" == "" ]]; then curl -kX POST "${webhookExternalBaseUrl}/sync-pod?nodeName=\${NODE_NAME}&podName=\${POD_NAME}&namespace=\${NAMESPACE}&configMapName=${configMapName}"; fi`,
+    ],
+  });
 }

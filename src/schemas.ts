@@ -89,13 +89,7 @@ export const envFromSchema = RelaxedObject({
 });
 
 export const simplifiedContainerSchema = RelaxedObject({
-  name: Type.String(),
-  args: Type.Optional(Type.Array(Type.String())),
-  command: Type.Optional(Type.Array(Type.String())),
-  env: Type.Optional(Type.Array(envVarSchema)),
   envFrom: Type.Optional(Type.Array(envFromSchema)),
-  image: Type.String(),
-  imagePullPolicy: Type.Optional(Type.String()),
 });
 
 export type SimplifiedContainer = typebox.Static<
@@ -109,7 +103,7 @@ export const admissionReviewRequestObjectPodSchema = RelaxedObject({
   })),
   spec: RelaxedObject({
     containers: Type.Array(simplifiedContainerSchema),
-    initContainers: Type.Optional(Type.Array(simplifiedContainerSchema)),
+    initContainers: Type.Optional(Type.Array(Type.Any())),
   }),
 });
 
