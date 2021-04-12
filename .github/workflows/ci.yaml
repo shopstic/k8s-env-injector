@@ -121,7 +121,7 @@ jobs:
           skipIfExists: false
 
       - name: Build and push Helm Chart
-        if: github.ref == 'refs/heads/main'
+        if: steps.ref_name.outputs.branch == 'main' || steps.ref_name.outputs.tag != ''
         env:
           SHELL_IMAGE: ${{ needs.build-env.outputs.image }}
           GITHUB_SHA: ${{ github.sha }}
