@@ -26,7 +26,7 @@ jobs:
 
       - name: Build and push shell Docker image
         id: buildkit
-        uses: shopstic/buildkit-action@1.0.5
+        uses: shopstic/buildkit-action@1.0.10
         with:
           context: ${{ github.workspace }}/images/shell
           image: ghcr.io/shopstic/k8s-env-injector-ci
@@ -90,13 +90,34 @@ jobs:
           ./cli.sh compile
           EOF
 
-      - name: Build and push app Docker image
-        uses: shopstic/buildkit-action@1.0.5
-        if: github.ref == 'refs/heads/main'
+      - name: Github ref name
+        id: ref_name
+        run: |
+          if [[ "${GITHUB_REF}" =~ ^refs/heads/.* ]]; then
+            echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+          fi
+
+          if [[ "${GITHUB_REF}" =~ ^refs/tags/.* ]]; then
+            echo "::set-output name=tag::${GITHUB_REF#refs/tags/}"
+          fi
+
+      - name: Build and push app Docker image latest
+        uses: shopstic/buildkit-action@1.0.10
+        if: steps.ref_name.outputs.branch == 'main'
         with:
           context: ${{ github.workspace }}/images/app
           image: shopstic/k8s-env-injector
           tag: ${{ github.sha }}
+          additionalTags: latest
+          skipIfExists: false
+
+      - name: Build and push app Docker image to tag
+        uses: shopstic/buildkit-action@1.0.10
+        if: steps.ref_name.outputs.tag != ''
+        with:
+          context: ${{ github.workspace }}/images/app
+          image: shopstic/k8s-fdb-injector
+          tag: ${{ steps.ref_name.outputs.tag }}
           skipIfExists: false
 
       - name: Build and push Helm Chart
@@ -104,23 +125,24 @@ jobs:
         env:
           SHELL_IMAGE: ${{ needs.build-env.outputs.image }}
           GITHUB_SHA: ${{ github.sha }}
+          GITHUB_TAG: ${{ steps.ref_name.outputs.tag }}
         run: |-
           cat <<EOF | docker run \
             --workdir /repo \
             -i \
             --rm \
             -e GITHUB_SHA \
+            -e GITHUB_TAG \
             -v "${GITHUB_WORKSPACE}:/repo" \
             -v "${HOME}/.docker/config.json:/root/.docker/config.json" \
             "${SHELL_IMAGE}" \
             bash -l
           set -euo pipefail
 
-          export HELM_EXPERIMENTAL_OCI=1
-          export HELM_REGISTRY_CONFIG=/root/.docker/config.json
+          ./cli.sh push_helm_chart "${GITHUB_SHA}"
 
-          yq e '.appVersion = env(GITHUB_SHA)' -i ./charts/env-injector/Chart.yaml 
-          helm chart save ./charts/env-injector "ghcr.io/shopstic/chart-env-injector:${GITHUB_SHA}"
-          helm chart push "ghcr.io/shopstic/chart-env-injector:${GITHUB_SHA}"
+          if [[ "${GITHUB_TAG}" != "" ]]; then
+            ./cli.sh push_helm_chart "${GITHUB_TAG}"
+          fi
           
           EOF

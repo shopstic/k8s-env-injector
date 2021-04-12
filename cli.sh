@@ -51,4 +51,14 @@ watch() {
   deno run --unstable --watch -A ./src/app.ts
 }
 
+push_helm_chart() {
+  local HELM_APP_VERSION=${1:?"Helm chart app version is required"}
+  export HELM_EXPERIMENTAL_OCI=1
+  export HELM_REGISTRY_CONFIG=/root/.docker/config.json
+
+  yq e '.appVersion = env(HELM_APP_VERSION)' -i ./charts/env-injector/Chart.yaml 
+  helm chart save ./charts/env-injector "ghcr.io/shopstic/chart-env-injector:${HELM_APP_VERSION}"
+  helm chart push "ghcr.io/shopstic/chart-env-injector:${HELM_APP_VERSION}"
+}
+
 "$@"
