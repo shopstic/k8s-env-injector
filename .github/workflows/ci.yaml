@@ -116,7 +116,7 @@ jobs:
         if: steps.ref_name.outputs.tag != ''
         with:
           context: ${{ github.workspace }}/images/app
-          image: shopstic/k8s-fdb-injector
+          image: shopstic/k8s-env-injector
           tag: ${{ steps.ref_name.outputs.tag }}
           skipIfExists: false
 
@@ -139,10 +139,10 @@ jobs:
             bash -l
           set -euo pipefail
 
-          ./cli.sh push_helm_chart "${GITHUB_SHA}"
-
           if [[ "${GITHUB_TAG}" != "" ]]; then
             ./cli.sh push_helm_chart "${GITHUB_TAG}"
+          else
+            ./cli.sh push_helm_chart "${GITHUB_SHA}"
           fi
           
           EOF
