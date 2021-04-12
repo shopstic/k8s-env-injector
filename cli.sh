@@ -52,7 +52,7 @@ watch() {
 }
 
 push_helm_chart() {
-  local HELM_APP_VERSION=${1:?"Helm chart app version is required"}
+  export HELM_APP_VERSION=${1:?"Helm chart app version is required"}
   export HELM_EXPERIMENTAL_OCI=1
   export HELM_REGISTRY_CONFIG=/root/.docker/config.json
 
