@@ -1,12 +1,14 @@
-import { describe, expect, it, Path, superdeno } from "./deps.ts";
+import { describe, it } from "./deps/test-utils.ts";
+import { expect, superdeno } from "./deps/superdeno.ts";
 import { create as createServer } from "../src/server.ts";
+import { dirname, fromFileUrl, join } from "./deps/std-path.ts";
 
-const thisPath = Path.dirname(Path.fromFileUrl(import.meta.url));
+const thisPath = dirname(fromFileUrl(import.meta.url));
 
 async function readFixture(fixture: string) {
   return JSON.parse(
     await Deno.readTextFile(
-      Path.join(thisPath, "./fixtures/", fixture),
+      join(thisPath, "./fixtures/", fixture),
     ),
   );
 }

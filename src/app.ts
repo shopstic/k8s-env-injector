@@ -23,5 +23,5 @@ const serverOptions = {
 server.listen(serverOptions);
 
 logger.info(
-  `k8s-env-injector Admission Controller started at ${serverInterface}:${serverPort}`,
+  `k8s-env-injector mutating admission webhook server started at ${serverInterface}:${serverPort}`,
 );

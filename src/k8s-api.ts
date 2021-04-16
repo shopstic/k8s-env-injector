@@ -1,13 +1,13 @@
+import { captureExec, inheritExec } from "./deps/exec-utils.ts";
 import {
-  execUtils,
   IoK8sApiCoreV1ConfigMap,
   IoK8sApimachineryPkgApisMetaV1OwnerReference,
-} from "./deps.ts";
+} from "./deps/k8s-utils.ts";
 
 export async function getNodeLabels(
   nodeName: string,
 ): Promise<Record<string, string>> {
-  const stdout = await execUtils.captureExec({
+  const stdout = await captureExec({
     run: {
       cmd: [
         "kubectl",
@@ -26,7 +26,7 @@ export async function getNodeLabels(
 export async function getPodOwnerReference(
   { podName, namespace }: { podName: string; namespace: string },
 ): Promise<IoK8sApimachineryPkgApisMetaV1OwnerReference> {
-  const stdout = await execUtils.captureExec({
+  const stdout = await captureExec({
     run: {
       cmd: [
         "kubectl",
@@ -79,7 +79,7 @@ export async function createConfigMap(
     data: mappedData,
   };
 
-  await execUtils.inheritExec({
+  await inheritExec({
     run: {
       cmd: ["kubectl", "apply", "-f", "-"],
     },

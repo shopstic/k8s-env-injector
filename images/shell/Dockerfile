@@ -1,6 +1,5 @@
-FROM shopstic/bin-dumb-init:1.2.2 as bin-dumb-init
 FROM shopstic/bin-kubectl:1.20.4 as bin-kubectl
-FROM shopstic/bin-deno:1.8.3 as bin-deno
+FROM shopstic/bin-deno:1.9.0 as bin-deno
 FROM shopstic/bin-helm:3.5.3 as bin-helm
 FROM shopstic/bin-yq:4.6.3 as bin-yq
 
@@ -19,15 +18,16 @@ ENV LANG=C.UTF-8
 ENV TERM=xterm-256color
 
 RUN \
-  apt-get update && apt-get install -y ca-certificates
-  
-COPY --from=bin-dumb-init /usr/bin/dumb-init /usr/bin/dumb-init
-COPY --from=bin-kubectl /usr/bin/kubectl /usr/bin/kubectl
-COPY --from=bin-helm /usr/bin/helm /usr/bin/helm
-COPY --from=bin-deno /usr/bin/deno /usr/bin/deno
-COPY --from=bin-yq /usr/bin/yq /usr/bin/yq
+  apt-get update && \
+  apt-get install -y ca-certificates unzip
+
+COPY --from=bin-kubectl / / 
+COPY --from=bin-helm / / 
+COPY --from=bin-deno / / 
+COPY --from=bin-yq / / 
 COPY --from=kube-ps1 /root/kube-ps1.sh /root/kube-ps1.sh
 
 COPY ./.profile /root/.profile
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+RUN \
+  printf "\n%s\n" "export PATH=\"${PATH}\"" >> /root/.profile

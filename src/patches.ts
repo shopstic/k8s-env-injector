@@ -2,8 +2,12 @@ import type {
   AdmissionReviewRequestObjectPod,
   SimplifiedContainer,
 } from "./schemas.ts";
-import { jsonPatch, uuid } from "./deps.ts";
-import { k8s } from "./deps.ts";
+import { uuidV4 } from "./deps/std-uuid.ts";
+import { compare, Operation } from "./deps/fast-json-patch.ts";
+import {
+  createK8sContainer,
+  IoK8sApiCoreV1Container,
+} from "./deps/k8s-utils.ts";
 
 export function mutatePodAdmission(
   { pod, webhookExternalBaseUrl, defaultConfigMapPrefix }: {
@@ -11,7 +15,7 @@ export function mutatePodAdmission(
     webhookExternalBaseUrl: string;
     defaultConfigMapPrefix: string;
   },
-): jsonPatch.Operation[] {
+): Operation[] {
   const configMapName = generateConfigMapName(pod, defaultConfigMapPrefix);
   const clonedPod: AdmissionReviewRequestObjectPod = JSON.parse(
     JSON.stringify(pod),
@@ -20,14 +24,14 @@ export function mutatePodAdmission(
   addConfigMapBasedEnvVars({ pod: clonedPod, configMapName });
   addInitContainer({ pod: clonedPod, configMapName, webhookExternalBaseUrl });
 
-  return jsonPatch.compare(pod, clonedPod);
+  return compare(pod, clonedPod);
 }
 
 function generateConfigMapName(
   pod: AdmissionReviewRequestObjectPod,
   defaultPrefix: string,
 ): string {
-  const suffix = `env-${uuid.v4.generate()}`;
+  const suffix = `env-${uuidV4.generate()}`;
   const maxNameLength = 62;
   const generateName = pod.metadata?.generateName;
 
@@ -100,8 +104,8 @@ function initContainer(
     configMapName: string;
     webhookExternalBaseUrl: string;
   },
-): k8s.IoK8sApiCoreV1Container {
-  return k8s.createK8sContainer({
+): IoK8sApiCoreV1Container {
+  return createK8sContainer({
     name: "node-labels-to-configmap-populator",
     image:
       "docker.io/curlimages/curl:7.76.0@sha256:eba6932609babc097c5c26c5b738a3fa6b43c7e0d5e4a5e32956e2c2e7f5acd1",

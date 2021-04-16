@@ -1,12 +1,7 @@
-import { typebox } from "./deps.ts";
+import type { Static } from "./deps/typebox.ts";
+import { Type } from "./deps/typebox.ts";
 
-const Type = typebox.Type;
-
-function RelaxedObject<T extends typebox.TProperties>(
-  properties: T,
-): typebox.TObject<T> {
-  return Type.Object<T>(properties, { additionalProperties: true });
-}
+const PartialObject = Type.PartialObject;
 
 export const PatchOperationSchema = Type.Union([
   Type.Object({
@@ -48,65 +43,65 @@ export const PatchOperationSchema = Type.Union([
   }),
 ]);
 
-export type PatchOperation = typebox.Static<typeof PatchOperationSchema>;
+export type PatchOperation = Static<typeof PatchOperationSchema>;
 
-export const configMapEnvSourceSchema = RelaxedObject({
+export const configMapEnvSourceSchema = PartialObject({
   name: Type.String(),
   optional: Type.Optional(Type.Boolean()),
 });
 
-export const configMapKeySelectorSchema = RelaxedObject({
+export const configMapKeySelectorSchema = PartialObject({
   key: Type.String(),
   name: Type.String(),
   optional: Type.Optional(Type.Boolean()),
 });
 
-export const objectFieldSelectorSchema = RelaxedObject({
+export const objectFieldSelectorSchema = PartialObject({
   apiVersion: Type.Optional(Type.String()),
   fieldPath: Type.String(),
 });
 
-export const resourceFieldSelectorSchema = RelaxedObject({
+export const resourceFieldSelectorSchema = PartialObject({
   containerName: Type.String(),
   resource: Type.Optional(Type.String()),
 });
 
-export const simplifiedEnvVarSourceSchema = RelaxedObject({
+export const simplifiedEnvVarSourceSchema = PartialObject({
   configMapKeyRef: Type.Optional(configMapKeySelectorSchema),
   fieldRef: Type.Optional(objectFieldSelectorSchema),
   resourceFieldRef: Type.Optional(resourceFieldSelectorSchema),
 });
 
-export const envVarSchema = RelaxedObject({
+export const envVarSchema = PartialObject({
   name: Type.String(),
   value: Type.Optional(Type.String()),
   valueFrom: Type.Optional(simplifiedEnvVarSourceSchema),
 });
 
-export const envFromSchema = RelaxedObject({
+export const envFromSchema = PartialObject({
   configMapRef: Type.Optional(configMapEnvSourceSchema),
   prefix: Type.Optional(Type.String()),
 });
 
-export const simplifiedContainerSchema = RelaxedObject({
+export const simplifiedContainerSchema = PartialObject({
   envFrom: Type.Optional(Type.Array(envFromSchema)),
 });
 
-export type SimplifiedContainer = typebox.Static<
+export type SimplifiedContainer = Static<
   typeof simplifiedContainerSchema
 >;
 
-export const admissionReviewRequestObjectPodSchema = RelaxedObject({
+export const admissionReviewRequestObjectPodSchema = PartialObject({
   kind: Type.Literal("Pod"),
-  metadata: Type.Optional(RelaxedObject({
+  metadata: Type.Optional(PartialObject({
     generateName: Type.Optional(Type.String()),
   })),
-  spec: RelaxedObject({
+  spec: PartialObject({
     containers: Type.Array(simplifiedContainerSchema),
     initContainers: Type.Optional(Type.Array(Type.Any())),
   }),
 });
 
-export type AdmissionReviewRequestObjectPod = typebox.Static<
+export type AdmissionReviewRequestObjectPod = Static<
   typeof admissionReviewRequestObjectPodSchema
 >;

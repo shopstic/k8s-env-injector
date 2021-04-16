@@ -10,13 +10,9 @@ gen_types() {
 
 code_quality() {
   echo "Checking formatting..."
-  deno fmt --unstable --check ./src
-  deno fmt --unstable --check ./test
+  deno fmt --unstable --check ./src ./test
   echo "Linting..."
-  deno lint --unstable ./src
-  deno lint --unstable ./test
-  # echo "Runnning tests..."
-  # deno test -A
+  deno lint --unstable ./src ./test
 }
 
 test_helm_chart() {
@@ -43,12 +39,15 @@ test() {
 }
 
 compile() {
-  # This sed replacement is a temporary workaround for https://github.com/denoland/deno/issues/9810
-  deno bundle ./src/app.ts | sed -e 's/await this\._loading\[ref2\] = loadSchema(ref2)/await (this._loading[ref2] = loadSchema(ref2))/g' > ./images/app/app.js
+  deno bundle --lock=lock.json ./src/app.ts > ./images/app/app.js
 }
 
 watch() {
-  deno run --unstable --watch -A ./src/app.ts
+  deno run --lock=lock.json --unstable --watch -A ./src/app.ts
+}
+
+update_lock() {
+  deno cache --lock=lock.json --lock-write ./src/deps/* ./test/deps/*
 }
 
 push_helm_chart() {

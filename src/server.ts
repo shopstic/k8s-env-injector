@@ -7,13 +7,13 @@ import {
   getPodOwnerReference,
 } from "./k8s-api.ts";
 import { V1AdmissionReview } from "./generated.ts";
-import { opine, opineJson, typebox, validationUtils } from "./deps.ts";
-
-const Type = typebox.Type;
+import { Type } from "./deps/typebox.ts";
+import { createValidator } from "./deps/validation-utils.ts";
+import { opine, opineJson } from "./deps/opine.ts";
 
 const logger = loggerWithContext("server");
 
-const validateSyncPodQuery = validationUtils.createValidator(Type.Object({
+const validateSyncPodQuery = createValidator(Type.Object({
   nodeName: Type.String({ minLength: 1 }),
   podName: Type.String({ minLength: 1 }),
   namespace: Type.String({ minLength: 1 }),
