@@ -60,3 +60,8 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "env-injector.secretName" -}}
+{{ include "env-injector.fullname" . }}-cert
+{{- end }}
+

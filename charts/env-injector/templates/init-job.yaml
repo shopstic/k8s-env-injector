@@ -34,7 +34,7 @@ spec:
             - name: ENV_INJECTOR_NAME
               value: {{ include "env-injector.fullname" . }}
             - name: ENV_INJECTOR_SECRET_NAME
-              value: {{ include "env-injector.fullname" . }}-cert
+              value: {{ include "env-injector.secretName" . }}
           command:
             - bash
             - -c

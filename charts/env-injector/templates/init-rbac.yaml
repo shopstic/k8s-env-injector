@@ -22,16 +22,20 @@ metadata:
 rules:
 - apiGroups: ["admissionregistration.k8s.io"]
   resources: ["mutatingwebhookconfigurations"]
-  verbs: ["create", "update", "patch"]
+  resourceNames: [{{ $name | quote }}]
+  verbs: ["get", "create", "update", "patch"]
 - apiGroups: [""]
   resources: ["namespaces"]
+  resourceNames: [{{ .Release.Namespace | quote }}]
   verbs: ["get"]
 - apiGroups: ["rbac.authorization.k8s.io"]
   resources: ["clusterroles"]
-  verbs: ["patch"]
+  resourceNames: [{{ $name | quote }}]
+  verbs: ["get", "patch", "update"]
 - apiGroups: ["rbac.authorization.k8s.io"]
   resources: ["clusterrolebindings"]
-  verbs: ["patch"]
+  resourceNames: [{{ $name | quote }}]
+  verbs: ["get", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -45,6 +49,7 @@ metadata:
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
+  resourceNames: [{{ include "env-injector.secretName" . | quote }}]
   verbs: ["create", "get", "update", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
