@@ -16,18 +16,25 @@ spec:
         {{- include "env-injector.labels" . | nindent 8 }}
         shopstic.com/env-injector-controller: "true"
     spec:
-      serviceAccountName: {{ include "env-injector.serviceAccountName" . }}
+      serviceAccountName: {{ include "env-injector.fullname" . }}-init
       containers:
         - name: init
           image: "shopstic/k8s-env-injector-init:{{ .Chart.AppVersion }}"
+          env:
+            - name: ENV_INJECTOR_INIT_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ENV_INJECTOR_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: ENV_INJECTOR_SECRET_NAME
+              value: {{ include "env-injector.fullname" . }}-cert
           command:
             - bash
             - -c
             - |
               set -euo pipefail
 
-              ENV_INJECTOR_NAMESPACE="{{ .Release.Namespace }}"
-              ENV_INJECTOR_SECRET_NAME="{{ include "env-injector.fullname" . }}-cert"
               ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE=$(cat <<EOF
               {{- include "env-injector.mutatingWebhookConfiguration" . | nindent 14 }}
               EOF

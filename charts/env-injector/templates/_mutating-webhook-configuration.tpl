@@ -3,10 +3,17 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: {{ include "env-injector.fullname" . }}
+  ownerReferences:
+  - apiVersion: v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Namespace
+    name: {{ .Release.Namespace }}
+    uid: %%OWNER_NAMESPACE_UID%%
 webhooks:
   - name: {{ include "env-injector.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     clientConfig:
-      caBundle: %%MUTATING_WEBHOOK_CONFIGURATION_CA_BUNDLE%%
+      caBundle: %%CA_BUNDLE%%
       service:
         namespace: {{ .Release.Namespace }}
         name: {{ include "env-injector.fullname" . }}
