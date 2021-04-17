@@ -22,20 +22,22 @@ if ! ENV_INJECTOR_CERT=$(kubectl get -n "${ENV_INJECTOR_NAMESPACE}" "secret/${EN
 
 cat <<EOF > "${SSL_CONFIG_PATH}"
 [req]
-req_extensions = v3_req
+default_bits       = 4096
 distinguished_name = req_distinguished_name
-[req_distinguished_name]
+req_extensions     = req_ext
 
-[v3_req]
-basicConstraints = CA:FALSE
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-extendedKeyUsage = serverAuth
+[req_distinguished_name]
+commonName         = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+commonName_max     = 64
+commonName_default = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+
+[req_ext]
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = ${ENV_INJECTOR_NAME}
-DNS.2 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}
-DNS.3 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+DNS.1 = ${ENV_INJECTOR_SERVICE_NAME}
+DNS.2 = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}
+DNS.3 = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
 EOF
 
   openssl genrsa -out "${SSL_KEY_PATH}" 4096
@@ -52,6 +54,7 @@ EOF
     -in "${SSL_PRIVATE_PATH}" \
     -signkey "${SSL_KEY_PATH}" \
     -out "${SSL_CERT_PATH}" \
+    -extensions req_ext \
     -extfile "${SSL_CONFIG_PATH}"
 
   ENV_INJECTOR_CERT=$(base64 -w 0 "${SSL_CERT_PATH}")
@@ -69,8 +72,6 @@ EOF
 )
 
 echo "Creating secret ${ENV_INJECTOR_SECRET_NAME}"
-echo "${SECRET_YAML}"
-
 echo "${SECRET_YAML}" | kubectl create -f -
 
 fi
@@ -105,8 +106,6 @@ ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE=${ENV_INJECTOR_MUTATING_WEBH
 ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE=${ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE//%%OWNER_NAMESPACE_UID%%/${ENV_INJECTOR_NAMESPACE_UID}}
 
 echo "Updating MutatingWebhookConfigration"
-echo "${ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE}"
-
 echo "${ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE}" | kubectl apply -f -
 
 
