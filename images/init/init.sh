@@ -52,7 +52,6 @@ EOF
     -in "${SSL_PRIVATE_PATH}" \
     -signkey "${SSL_KEY_PATH}" \
     -out "${SSL_CERT_PATH}" \
-    -extensions req_ext \
     -extfile "${SSL_CONFIG_PATH}"
 
   ENV_INJECTOR_CERT=$(base64 "${SSL_CERT_PATH}")
