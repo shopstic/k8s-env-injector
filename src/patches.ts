@@ -3,7 +3,7 @@ import type {
   SimplifiedContainer,
 } from "./schemas.ts";
 import { uuidV4 } from "./deps/std-uuid.ts";
-import { compare, Operation } from "./deps/fast-json-patch.ts";
+import { jsonPatch } from "./deps/fast-json-patch.ts";
 import {
   createK8sContainer,
   IoK8sApiCoreV1Container,
@@ -15,7 +15,7 @@ export function mutatePodAdmission(
     webhookExternalBaseUrl: string;
     defaultConfigMapPrefix: string;
   },
-): Operation[] {
+): jsonPatch.Operation[] {
   const configMapName = generateConfigMapName(pod, defaultConfigMapPrefix);
   const clonedPod: AdmissionReviewRequestObjectPod = JSON.parse(
     JSON.stringify(pod),
@@ -24,7 +24,7 @@ export function mutatePodAdmission(
   addConfigMapBasedEnvVars({ pod: clonedPod, configMapName });
   addInitContainer({ pod: clonedPod, configMapName, webhookExternalBaseUrl });
 
-  return compare(pod, clonedPod);
+  return jsonPatch.compare(pod, clonedPod);
 }
 
 function generateConfigMapName(
