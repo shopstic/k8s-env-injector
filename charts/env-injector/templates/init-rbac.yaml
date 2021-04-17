@@ -1,5 +1,5 @@
 {{- $name := include "env-injector.fullname" . -}}
-{{- $secretName := include "env-injector.secretName" -}}
+{{- $secretName := include "env-injector.secretName" . -}}
 {{- $initName := (printf "%v-%v" $name "init") -}}
 ---
 apiVersion: v1
