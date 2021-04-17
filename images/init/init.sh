@@ -27,17 +27,17 @@ distinguished_name = req_distinguished_name
 req_extensions     = req_ext
 
 [req_distinguished_name]
-commonName         = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+commonName         = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
 commonName_max     = 64
-commonName_default = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+commonName_default = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
 
 [req_ext]
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = ${ENV_INJECTOR_SERVICE_NAME}
-DNS.2 = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}
-DNS.3 = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+DNS.1 = ${ENV_INJECTOR_NAME}
+DNS.2 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}
+DNS.3 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
 EOF
 
   openssl genrsa -out "${SSL_KEY_PATH}" 4096
