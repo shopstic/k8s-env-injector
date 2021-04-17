@@ -28,9 +28,6 @@ mutationWebhook:
       - key: shopstic.com/foo
         operator: In
         values: ["bar"]
-  certificate:
-    key: "dummy"
-    cert: "dummy"
 EOF
 }
 
