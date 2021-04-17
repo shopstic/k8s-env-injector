@@ -1,9 +1,10 @@
-{{- $name := (printf "%v-%v" (include "env-injector.fullname" .) "init") -}}
+{{- $name := include "env-injector.fullname" . -}}
+{{- $initName := (printf "%v-%v" $name "init") -}}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ $name }}
+  name: {{ $initName }}
   labels:
     {{- include "env-injector.labels" . | nindent 4 }}
   annotations:
@@ -13,7 +14,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ $name }}
+  name: {{ $initName }}
   labels:
     {{- include "env-injector.labels" . | nindent 4 }}
   annotations:
@@ -33,17 +34,17 @@ rules:
   verbs: ["get"]
 - apiGroups: ["rbac.authorization.k8s.io"]
   resources: ["clusterroles"]
-  resourceNames: [{{ $name | quote }}]
+  resourceNames: [{{ $initName | quote }}]
   verbs: ["get", "patch", "update"]
 - apiGroups: ["rbac.authorization.k8s.io"]
   resources: ["clusterrolebindings"]
-  resourceNames: [{{ $name | quote }}]
+  resourceNames: [{{ $initName | quote }}]
   verbs: ["get", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ $name }}
+  name: {{ $initName }}
   labels:
     {{- include "env-injector.labels" . | nindent 4 }}
   annotations:
@@ -55,13 +56,13 @@ rules:
   verbs: ["create"]
 - apiGroups: [""]
   resources: ["secrets"]
-  resourceNames: [{{ include "env-injector.secretName" . | quote }}]
+  resourceNames: [{{ $name | quote }}]
   verbs: ["get", "update", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ $name }}
+  name: {{ $initName }}
   labels:
     {{- include "env-injector.labels" . | nindent 4 }}
   annotations:
@@ -70,16 +71,16 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ $name }}
+  name: {{ $initName }}
 subjects:
   - kind: ServiceAccount
-    name: {{ $name }}
+    name: {{ $initName }}
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ $name }}
+  name: {{ $initName }}
   labels:
     {{- include "env-injector.labels" . | nindent 4 }}
   annotations:
@@ -88,8 +89,8 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ $name }}
+  name: {{ $initName }}
 subjects:
   - kind: ServiceAccount
-    name: {{ $name }}
+    name: {{ $initName }}
     namespace: {{ .Release.Namespace }}
