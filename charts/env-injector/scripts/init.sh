@@ -2,7 +2,6 @@ ENV_INJECTOR_CERT=""
 
 if ! ENV_INJECTOR_CERT=$(kubectl get -n "${ENV_INJECTOR_NAMESPACE}" "secret/${ENV_INJECTOR_SECRET_NAME}" "-o=jsonpath={.data['cert\.pem']}") || [[ "${ENV_INJECTOR_CERT}" == "" ]]; then
 
-  TEMP_DIR
   TEMP_DIR="/dev/shm/$(mktemp -u XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)"
   mkdir -p "${TEMP_DIR}"
   trap "rm -Rf ${TEMP_DIR}" EXIT
