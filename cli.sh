@@ -39,15 +39,11 @@ test() {
 }
 
 compile() {
-  deno bundle --lock=lock.json ./src/app.ts > ./images/app/app.js
+  deno bundle ./src/app.ts > ./images/app/app.js
 }
 
 watch() {
-  deno run --lock=lock.json --unstable --watch -A ./src/app.ts
-}
-
-update_lock() {
-  deno cache --lock=lock.json --lock-write ./src/deps/* ./test/deps/*
+  deno run --unstable --watch -A ./src/app.ts
 }
 
 push_helm_chart() {

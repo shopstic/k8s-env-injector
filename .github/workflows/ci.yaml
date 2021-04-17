@@ -45,9 +45,9 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/.cache
-          key: deno-${{ hashFiles('lock.json') }}
+          key: deno-${{ github.sha }}
           restore-keys: |
-            deno-${{ hashFiles('lock.json') }}
+            deno-
             
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
