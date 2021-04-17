@@ -54,7 +54,7 @@ EOF
     -out "${SSL_CERT_PATH}" \
     -extfile "${SSL_CONFIG_PATH}"
 
-  ENV_INJECTOR_CERT=$(base64 "${SSL_CERT_PATH}")
+  ENV_INJECTOR_CERT=$(base64 -w 0 "${SSL_CERT_PATH}")
   SECRET_YAML=$(cat <<EOF
 apiVersion: v1
 kind: Secret
@@ -64,7 +64,7 @@ metadata:
 type: Opaque
 data:
   "cert.pem": ${ENV_INJECTOR_CERT}
-  "key.pem": $(base64 "${SSL_KEY_PATH}")
+  "key.pem": $(base64 -w 0 "${SSL_KEY_PATH}")
 EOF
 )
 
