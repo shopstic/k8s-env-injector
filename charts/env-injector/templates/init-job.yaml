@@ -26,9 +26,7 @@ spec:
           image: "shopstic/k8s-env-injector-init:{{ .Chart.AppVersion }}"
           env:
             - name: ENV_INJECTOR_INIT_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+              value: {{ include "env-injector.fullname" . }}-init
             - name: ENV_INJECTOR_NAMESPACE
               value: {{ .Release.Namespace }}
             - name: ENV_INJECTOR_NAME
