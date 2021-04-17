@@ -120,6 +120,25 @@ jobs:
           tag: ${{ steps.ref_name.outputs.tag }}
           skipIfExists: false
 
+      - name: Build and push init Docker image latest
+        uses: shopstic/buildkit-action@1.0.10
+        if: steps.ref_name.outputs.branch == 'main'
+        with:
+          context: ${{ github.workspace }}/images/init
+          image: shopstic/k8s-env-injector-init
+          tag: ${{ github.sha }}
+          additionalTags: latest
+          skipIfExists: false
+
+      - name: Build and push init Docker image to tag
+        uses: shopstic/buildkit-action@1.0.10
+        if: steps.ref_name.outputs.tag != ''
+        with:
+          context: ${{ github.workspace }}/images/init
+          image: shopstic/k8s-env-injector-init
+          tag: ${{ steps.ref_name.outputs.tag }}
+          skipIfExists: false
+
       - name: Build and push Helm Chart
         if: steps.ref_name.outputs.branch == 'main' || steps.ref_name.outputs.tag != ''
         env:

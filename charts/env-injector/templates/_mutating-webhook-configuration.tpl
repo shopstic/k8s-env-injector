@@ -1,14 +1,12 @@
+{{- define "env-injector.mutatingWebhookConfiguration" }}
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: {{ include "env-injector.fullname" . }}
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-99"  
 webhooks:
   - name: {{ include "env-injector.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     clientConfig:
-      caBundle: {{ .Values.mutationWebhook.certificate.cert | quote }}
+      caBundle: %%MUTATING_WEBHOOK_CONFIGURATION_CA_BUNDLE%%
       service:
         namespace: {{ .Release.Namespace }}
         name: {{ include "env-injector.fullname" . }}
@@ -37,3 +35,4 @@ webhooks:
         resources: ["pods"]
         scope: "Namespaced"
     admissionReviewVersions: ["v1"]
+{{- end }}
