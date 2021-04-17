@@ -32,14 +32,10 @@ function generateConfigMapName(
   defaultPrefix: string,
 ): string {
   const suffix = `env-${uuidV4.generate()}`;
-  const maxNameLength = 62;
   const generateName = pod.metadata?.generateName;
 
   const prefix = generateName || defaultPrefix;
-  const truncatedPrefix = prefix.substring(0, maxNameLength - suffix.length);
-  const finalPrefix = (truncatedPrefix.endsWith("-"))
-    ? truncatedPrefix
-    : truncatedPrefix + "-";
+  const finalPrefix = (prefix.endsWith("-")) ? prefix : prefix + "-";
 
   return `${finalPrefix}${suffix}`;
 }
