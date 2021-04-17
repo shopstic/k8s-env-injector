@@ -1,3 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ENV_INJECTOR_NAME=${ENV_INJECTOR_NAME:?"ENV_INJECTOR_NAME env variable is required"}
+ENV_INJECTOR_INIT_NAME=${ENV_INJECTOR_INIT_NAME:?"ENV_INJECTOR_INIT_NAME env variable is required"}
+ENV_INJECTOR_NAMESPACE=${ENV_INJECTOR_NAMESPACE:?"ENV_INJECTOR_NAMESPACE env variable is required"}
+ENV_INJECTOR_SECRET_NAME=${ENV_INJECTOR_SECRET_NAME:?"ENV_INJECTOR_SECRET_NAME env variable is required"}
+ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE=${ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE:?"ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE env variable is required"}
+
 ENV_INJECTOR_CERT=""
 
 if ! ENV_INJECTOR_CERT=$(kubectl get -n "${ENV_INJECTOR_NAMESPACE}" "secret/${ENV_INJECTOR_SECRET_NAME}" "-o=jsonpath={.data['cert\.pem']}") || [[ "${ENV_INJECTOR_CERT}" == "" ]]; then
@@ -12,23 +21,21 @@ if ! ENV_INJECTOR_CERT=$(kubectl get -n "${ENV_INJECTOR_NAMESPACE}" "secret/${EN
   SSL_CERT_PATH="${TEMP_DIR}/cert.pem"
 
 cat <<EOF > "${SSL_CONFIG_PATH}"
-  [req]
-  default_bits       = 4096
-  distinguished_name = req_distinguished_name
-  req_extensions     = req_ext
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
 
-  [req_distinguished_name]
-  commonName         = Common Name (e.g. server FQDN or YOUR name)
-  commonName_max     = 64
-  commonName_default = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+[v3_req]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
 
-  [req_ext]
-  subjectAltName = @alt_names
-
-  [alt_names]
-  DNS.1 = ${ENV_INJECTOR_NAME}
-  DNS.2 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}
-  DNS.3 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+[alt_names]
+DNS.1 = ${ENV_INJECTOR_NAME}
+DNS.2 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}
+DNS.3 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
 EOF
 
   openssl genrsa -out "${SSL_KEY_PATH}" 4096
@@ -36,6 +43,7 @@ EOF
   openssl req -new -sha256 \
       -out "${SSL_PRIVATE_PATH}" \
       -key "${SSL_KEY_PATH}" \
+      -subj "/CN=${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc" \
       -config "${SSL_CONFIG_PATH}"
 
   openssl x509 -req \

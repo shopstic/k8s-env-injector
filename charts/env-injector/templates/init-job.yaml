@@ -41,8 +41,9 @@ spec:
             - |
               set -euo pipefail
 
-              ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE=$(cat <<EOF
+              export ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE=$(cat <<EOF
               {{- include "env-injector.mutatingWebhookConfiguration" . | nindent 14 }}
               EOF
               )
-              {{ .Files.Get "scripts/init.sh" | nindent 14 }}
+
+              exec /usr/bin/init.sh
