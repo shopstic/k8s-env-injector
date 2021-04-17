@@ -1,4 +1,5 @@
 {{- $name := include "env-injector.fullname" . -}}
+{{- $secretName := include "env-injector.secretName" -}}
 {{- $initName := (printf "%v-%v" $name "init") -}}
 ---
 apiVersion: v1
@@ -56,7 +57,7 @@ rules:
   verbs: ["create"]
 - apiGroups: [""]
   resources: ["secrets"]
-  resourceNames: [{{ $name | quote }}]
+  resourceNames: [{{ $secretName | quote }}]
   verbs: ["get", "update", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
