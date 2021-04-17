@@ -1,9 +1,6 @@
 ENV_INJECTOR_CERT=""
 
 if ! ENV_INJECTOR_CERT=$(kubectl get -n "${ENV_INJECTOR_NAMESPACE}" "secret/${ENV_INJECTOR_SECRET_NAME}" "-o=jsonpath={.data['cert\.pem']}") || [[ "${ENV_INJECTOR_CERT}" == "" ]]; then
-  ENV_INJECTOR_SERVICE_NAME=${ENV_INJECTOR_SERVICE_NAME:?"ENV_INJECTOR_SERVICE_NAME env variable is required."}
-  ENV_INJECTOR_NAMESPACE=${ENV_INJECTOR_NAMESPACE:?"ENV_INJECTOR_NAMESPACE env variable is required."}
-  ENV_INJECTOR_CERT_VALIDITY_DAYS=${ENV_INJECTOR_CERT_VALIDITY_DAYS:?"ENV_INJECTOR_CERT_VALIDITY_DAYS env variable is required."}
 
   TEMP_DIR
   TEMP_DIR="/dev/shm/$(mktemp -u XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)"
@@ -24,15 +21,15 @@ cat <<EOF > "${SSL_CONFIG_PATH}"
   [req_distinguished_name]
   commonName         = Common Name (e.g. server FQDN or YOUR name)
   commonName_max     = 64
-  commonName_default = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+  commonName_default = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
 
   [req_ext]
   subjectAltName = @alt_names
 
   [alt_names]
-  DNS.1 = ${ENV_INJECTOR_SERVICE_NAME}
-  DNS.2 = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}
-  DNS.3 = ${ENV_INJECTOR_SERVICE_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
+  DNS.1 = ${ENV_INJECTOR_NAME}
+  DNS.2 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}
+  DNS.3 = ${ENV_INJECTOR_NAME}.${ENV_INJECTOR_NAMESPACE}.svc
 EOF
 
   openssl genrsa -out "${SSL_KEY_PATH}" 4096
@@ -44,7 +41,7 @@ EOF
 
   openssl x509 -req \
     -sha256 \
-    -days "${ENV_INJECTOR_CERT_VALIDITY_DAYS}" \
+    -days "36500" \
     -in "${SSL_PRIVATE_PATH}" \
     -signkey "${SSL_KEY_PATH}" \
     -out "${SSL_CERT_PATH}" \

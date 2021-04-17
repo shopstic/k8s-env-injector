@@ -9,7 +9,7 @@ metadata:
     "helm.sh/hook": "pre-install,pre-upgrade"
     "helm.sh/hook-weight": "-98"
 spec:
-  backoffLimit: 1
+  backoffLimit: 0
   template:
     metadata:
       labels:
@@ -17,6 +17,10 @@ spec:
         shopstic.com/env-injector-controller: "true"
     spec:
       serviceAccountName: {{ include "env-injector.fullname" . }}-init
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 5000
+        runAsGroup: 5000
       containers:
         - name: init
           image: "shopstic/k8s-env-injector-init:{{ .Chart.AppVersion }}"
@@ -27,6 +31,8 @@ spec:
                   fieldPath: metadata.name
             - name: ENV_INJECTOR_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: ENV_INJECTOR_NAME
+              value: {{ include "env-injector.fullname" . }}
             - name: ENV_INJECTOR_SECRET_NAME
               value: {{ include "env-injector.fullname" . }}-cert
           command:
@@ -40,7 +46,3 @@ spec:
               EOF
               )
               {{ .Files.Get "scripts/init.sh" | nindent 14 }}
-      restartPolicy: Never
-      securityContext:
-        runAsUser: 5000
-        runAsGroup: 5000
