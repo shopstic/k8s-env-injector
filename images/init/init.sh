@@ -55,8 +55,7 @@ EOF
     -extfile "${SSL_CONFIG_PATH}"
 
   ENV_INJECTOR_CERT=$(base64 "${SSL_CERT_PATH}")
-
-cat <<EOF | kubectl create -f -
+  SECRET_YAML=$(cat <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -67,10 +66,18 @@ data:
   "cert.pem": ${ENV_INJECTOR_CERT}
   "key.pem": $(base64 "${SSL_KEY_PATH}")
 EOF
+)
+
+echo "Creating secret ${ENV_INJECTOR_SECRET_NAME}"
+echo "${SECRET_YAML}"
+
+echo "${SECRET_YAML}" | kubectl create -f -
+
 fi
 
 ENV_INJECTOR_NAMESPACE_UID=$(kubectl get namespace "${ENV_INJECTOR_NAMESPACE}" "-o=jsonpath={.metadata.uid}")
 
+echo "Patching ClusterRole ${ENV_INJECTOR_INIT_NAME} with ownerReference UID ${ENV_INJECTOR_NAMESPACE_UID}"
 cat <<EOF | kubectl patch clusterrole "${ENV_INJECTOR_INIT_NAME}" --type merge -p "$(cat)"
 metadata:
   ownerReferences:
@@ -82,6 +89,7 @@ metadata:
       uid: ${ENV_INJECTOR_NAMESPACE_UID}
 EOF
 
+echo "Patching ClusterRoleBinding ${ENV_INJECTOR_INIT_NAME} with ownerReference UID ${ENV_INJECTOR_NAMESPACE_UID}"
 cat <<EOF | kubectl patch clusterrolebinding "${ENV_INJECTOR_INIT_NAME}" --type merge -p "$(cat)"
 metadata:
   ownerReferences:
@@ -95,6 +103,9 @@ EOF
 
 ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE=${ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE//%%CA_BUNDLE%%/${ENV_INJECTOR_CERT}}
 ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE=${ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE//%%OWNER_NAMESPACE_UID%%/${ENV_INJECTOR_NAMESPACE_UID}}
+
+echo "Updating MutatingWebhookConfigration"
+echo "${ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE}"
 
 echo "${ENV_INJECTOR_MUTATING_WEBHOOK_CONFIGRATION_TEMPLATE}" | kubectl apply -f -
 
