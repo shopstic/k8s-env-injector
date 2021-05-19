@@ -21,8 +21,10 @@ webhooks:
         port: {{ .Values.service.port }}
     timeoutSeconds: 5
     sideEffects: None
+    {{- with .Values.mutationWebhook.namespaceSelector }}
     namespaceSelector:
-      {{- required "Value .Values.mutationWebhook.namespaceSelector is required" .Values.mutationWebhook.namespaceSelector | toYaml | nindent 6 }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     objectSelector:
       matchExpressions:
         - key: "shopstic.com/env-injector-controller"
