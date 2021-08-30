@@ -1,7 +1,7 @@
-FROM shopstic/bin-kubectl:1.20.4 as bin-kubectl
-FROM shopstic/bin-deno:1.9.0 as bin-deno
-FROM shopstic/bin-helm:3.5.3 as bin-helm
-FROM shopstic/bin-yq:4.6.3 as bin-yq
+FROM shopstic/bin-kubectl:1.21.4 as bin-kubectl
+FROM shopstic/bin-deno:1.13.2 as bin-deno
+FROM shopstic/bin-helm:3.6.3 as bin-helm
+FROM shopstic/bin-yq:4.12.1 as bin-yq
 
 # kube-ps1 ------------------------------------------------------------------
 FROM shopstic/curl-tar-unzip:1.0.1 as kube-ps1

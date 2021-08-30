@@ -1,6 +1,6 @@
-FROM shopstic/bin-kubectl:1.20.4 as bin-kubectl
+FROM shopstic/bin-kubectl:1.21.4 as bin-kubectl
 
-FROM debian:stable-20210408-slim
+FROM debian:stable-20210816-slim
 
 RUN \
   apt-get update && \
