@@ -32,15 +32,19 @@ EOF
 }
 
 test() {
-  deno test -A ./test
+  deno test --lock=lock.json -A ./test
 }
 
 compile() {
-  deno bundle ./src/app.ts > ./images/app/app.js
+  deno bundle --lock=lock.json ./src/app.ts > ./images/app/app.js
 }
 
 watch() {
-  deno run --unstable --watch -A ./src/app.ts
+  deno run --lock=lock.json --unstable --watch -A ./src/app.ts
+}
+
+update_lock() {
+  deno cache ./src/deps/*.ts ./test/deps/*.ts  --lock ./lock.json --lock-write
 }
 
 push_helm_chart() {
