@@ -1,1 +1,1 @@
-export * as uuidV4 from "https://deno.land/std@0.93.0/uuid/v4.ts";
+export * as uuidV4 from "https://deno.land/std@0.101.0/uuid/v4.ts";

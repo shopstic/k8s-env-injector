@@ -13,5 +13,8 @@
   },
   "files.watcherExclude": {
     "**/target": true
+  },
+  "deno.suggest.imports.hosts": {
+    "https://raw.githubusercontent.com": false
   }
 }
