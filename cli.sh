@@ -48,13 +48,24 @@ update_lock() {
 }
 
 push_helm_chart() {
-  export HELM_APP_VERSION=${1:?"Helm chart app version is required"}
-  export HELM_EXPERIMENTAL_OCI=1
-  export HELM_REGISTRY_CONFIG=/root/.docker/config.json
+  export HELM_CHART_VERSION=${1:?"Helm chart version is required"}
+  export HELM_APP_VERSION=${2:?"Helm chart app version is required"}
+  export HELM_CHART_REF=${3:?"Helm chart ref is required"}
 
-  yq e '.appVersion = env(HELM_APP_VERSION)' -i ./charts/env-injector/Chart.yaml 
-  helm chart save ./charts/env-injector "ghcr.io/shopstic/chart-env-injector:${HELM_APP_VERSION}"
-  helm chart push "ghcr.io/shopstic/chart-env-injector:${HELM_APP_VERSION}"
+  export HELM_EXPERIMENTAL_OCI=1
+  export HELM_REGISTRY_CONFIG="${HOME}"/.docker/config.json
+
+  local OUT
+  OUT=$(mktemp -d)
+  trap "rm -Rf ${OUT}" EXIT
+
+  cp -R ./charts/env-injector "${OUT}/"
+
+  yq e '.version = env(HELM_CHART_VERSION)' -i "${OUT}/env-injector/Chart.yaml"
+  yq e '.appVersion = env(HELM_APP_VERSION)' -i "${OUT}/env-injector/Chart.yaml"
+
+  helm package --app-version "${HELM_APP_VERSION}" "${OUT}/env-injector" -d "${OUT}/packaged"
+  helm push "${OUT}/packaged/env-injector-${HELM_CHART_VERSION}.tgz" "${HELM_CHART_REF}"
 }
 
 "$@"

@@ -19,8 +19,8 @@ spec:
       serviceAccountName: {{ include "env-injector.fullname" . }}-init
       restartPolicy: Never
       securityContext:
-        runAsUser: 5000
-        runAsGroup: 5000
+        runAsUser: 1001
+        runAsGroup: 1001
       containers:
         - name: init
           image: "shopstic/k8s-env-injector-init:{{ .Chart.AppVersion }}"
@@ -44,4 +44,4 @@ spec:
               EOF
               )
 
-              exec /usr/bin/init.sh
+              exec "${ENTRYPOINT_SCRIPT:?"ENTRYPOINT_SCRIPT env var is not set"}"
