@@ -39,8 +39,8 @@
               buildahBuild = pkgs.callPackage hotPot.lib.buildahBuild;
             };
             initImage = pkgs.callPackage ./images/init {
-              inherit deno kubectl;
-              inherit (pkgs) dumb-init;
+              inherit kubectl;
+              inherit (pkgs) openssl;
               buildahBuild = pkgs.callPackage hotPot.lib.buildahBuild;
             };
           };
