@@ -13,7 +13,7 @@ defaults:
 
 jobs:
   release-image:
-    name: Release image ${{ github.event.inputs.version }}
+    name: Release image ${{ matrix.imageName }} ${{ github.event.inputs.version }}
     runs-on: [self-hosted, nix]
     env:
       IMAGE_REPOSITORY: public.ecr.aws/g1b1f7a7   
