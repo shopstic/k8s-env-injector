@@ -23,7 +23,7 @@ spec:
         runAsGroup: 1001
       containers:
         - name: init
-          image: "shopstic/k8s-env-injector-init:{{ .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}-init:{{ .Values.image.tag | default .Chart.AppVersion }}"
           env:
             - name: ENV_INJECTOR_INIT_NAME
               value: {{ include "env-injector.fullname" . }}-init

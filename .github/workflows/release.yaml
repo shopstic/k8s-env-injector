@@ -16,7 +16,7 @@ jobs:
     name: Release image ${{ matrix.imageName }} ${{ github.event.inputs.version }}
     runs-on: [self-hosted, nix]
     env:
-      IMAGE_REPOSITORY: public.ecr.aws/g1b1f7a7   
+      IMAGE_REPOSITORY: public.ecr.aws/shopstic   
     strategy:
       matrix:
         image: [app, init]
@@ -49,7 +49,7 @@ jobs:
     name: Release Helm chart ${{ github.event.inputs.version }}
     runs-on: [self-hosted, nix]
     env:
-      IMAGE_REPOSITORY: public.ecr.aws/g1b1f7a7   
+      IMAGE_REPOSITORY: public.ecr.aws/shopstic   
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
 

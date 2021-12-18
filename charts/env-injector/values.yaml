@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: public.ecr.aws/g1b1f7a7/k8s-env-injector
+  repository: public.ecr.aws/shopstic/k8s-env-injector
   pullPolicy: IfNotPresent
   tag: ""
 
