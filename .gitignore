@@ -1,2 +1,4 @@
 /.zsh_history
 /gen/node_modules
+/result
+/.vscode

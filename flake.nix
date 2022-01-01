@@ -13,7 +13,7 @@
         let
           pkgs = import nixpkgs { inherit system; };
           hotPotPkgs = hotPot.packages.${system};
-          deno = hotPotPkgs.deno_1_13_x;
+          deno = hotPotPkgs.deno;
           kubectl = pkgs.kubectl;
           k8sEnvInjector = pkgs.callPackage hotPot.lib.denoAppBuild {
             inherit deno;
@@ -28,6 +28,30 @@
                 );
               };
             appSrcPath = "./src/app.ts";
+          };
+          vscodeSettings = pkgs.writeTextFile {
+            name = "vscode-settings.json";
+            text = builtins.toJSON {
+              "deno.enable" = true;
+              "deno.lint" = true;
+              "deno.unstable" = true;
+              "deno.path" = deno + "/bin/deno";
+              "deno.suggest.imports.hosts" = {
+                "https://deno.land" = false;
+              };
+              "editor.tabSize" = 2;
+              "[typescript]" = {
+                "editor.defaultFormatter" = "denoland.vscode-deno";
+                "editor.formatOnSave" = true;
+              };
+              "yaml.schemaStore.enable" = true;
+              "yaml.schemas" = {
+                "https://json.schemastore.org/github-workflow.json" = ".github/workflows/*.yaml";
+              };
+              "nix.enableLanguageServer" = true;
+              "nix.formatterPath" = pkgs.nixpkgs-fmt + "/bin/nixpkgs-fmt";
+              "nix.serverPath" = pkgs.rnix-lsp + "/bin/rnix-lsp";
+            };
           };
         in
         rec {
@@ -45,6 +69,10 @@
             };
           };
           devShell = pkgs.mkShellNoCC {
+            shellHook = ''
+              mkdir -p ./.vscode
+              cat ${vscodeSettings} > ./.vscode/settings.json
+            '';
             buildInputs = builtins.attrValues {
               inherit deno kubectl;
               inherit (hotPotPkgs)
@@ -52,7 +80,7 @@
                 ;
               inherit (pkgs)
                 skopeo
-                yq-go 
+                yq-go
                 kubernetes-helm
                 awscli2
                 ;
