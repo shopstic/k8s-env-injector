@@ -22,8 +22,11 @@ const serverOptions: ListenOptions = {
   keyFile: settings.keyFilePath,
 };
 
-server.listen(serverOptions);
+server.addEventListener("listen", (evt) => {
+  const { hostname, port } = evt;
+  logger.info(
+    `k8s-env-injector mutating admission webhook server started at ${hostname}:${port}`,
+  );
+});
 
-logger.info(
-  `k8s-env-injector mutating admission webhook server started at ${serverInterface}:${serverPort}`,
-);
+await server.listen(serverOptions);
