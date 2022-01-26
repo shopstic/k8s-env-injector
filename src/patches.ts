@@ -104,7 +104,7 @@ function initContainer(
   return createK8sContainer({
     name: "node-labels-to-configmap-populator",
     image:
-      "docker.io/curlimages/curl:7.76.0@sha256:eba6932609babc097c5c26c5b738a3fa6b43c7e0d5e4a5e32956e2c2e7f5acd1",
+      "docker.io/curlimages/curl:7.81.0@sha256:faaba66e89c87fd3fb51336857142ee6ce78fa8d8f023a5713d2bf4957f1aca8",
     imagePullPolicy: "IfNotPresent",
     env: [
       {
