@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
 
 ENV_INJECTOR_NAME=${ENV_INJECTOR_NAME:?"ENV_INJECTOR_NAME env variable is required"}
