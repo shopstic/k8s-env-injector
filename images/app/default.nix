@@ -2,50 +2,44 @@
 , stdenv
 , deno
 , dumb-init
+, bash
 , kubectl
-, writeTextFile
-, buildahBuild
 , dockerTools
 , k8sEnvInjector
 }:
 let
   name = "k8s-env-injector";
-  baseImage = buildahBuild
-    {
-      name = "${name}-base";
-      context = ./context;
-      buildArgs = {
-        fromDigest = "sha256:626ffe58f6e7566e00254b638eb7e0f3b11d4da9675088f4781a50ae288f3322";
-      };
-      outputHash =
-        if stdenv.isx86_64 then
-          "sha256-lYiGeQccC6iKEdhaWPjLTWr+8xe8Kh0+F+pgmQZkQpU=" else
-          "sha256-kCPcb3meQUQ9/JD0KCBSpmH/ZztSohxy5qqas1FZHAw=";
-    };
-  entrypoint = writeTextFile {
-    name = "entrypoint";
-    executable = true;
-    text = ''
-      #!/usr/bin/env bash
-      set -euo pipefail
-      exec dumb-init -- ${k8sEnvInjector}/bin/k8s-env-injector
-    '';
-  };    
-  baseImageWithDeps = dockerTools.buildImage {
-    inherit name;
-    fromImage = baseImage;
+  user = "app";
+  uid = 1001;
+  gid = uid;
+  image = dockerTools.buildLayeredImage {
+    name = name;
+    contents = [ deno dumb-init kubectl bash ];
     config = {
-      Env = [
-        "PATH=${lib.makeBinPath [ deno dumb-init kubectl ]}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      Entrypoint = [
+        "dumb-init"
+        "--"
+        "${k8sEnvInjector}/bin/k8s-env-injector"
       ];
     };
+    fakeRootCommands = ''
+      mkdir ./etc
+
+      echo "root:!x:::::::" > ./etc/shadow
+      echo "${user}:!:::::::" >> ./etc/shadow
+
+      echo "root:x:0:0::/root:${bash}/bin/bash" > ./etc/passwd
+      echo "${user}:x:${toString uid}:${toString gid}::/home/${user}:" >> ./etc/passwd
+
+      echo "root:x:0:" > ./etc/group
+      echo "${user}:x:${toString gid}:" >> ./etc/group
+
+      echo "root:x::" > ./etc/gshadow
+      echo "${user}:x::" >> ./etc/gshadow
+
+      mkdir -p ./home/${user}
+      chown ${toString uid} ./home/${user}
+    '';
   };
 in
-dockerTools.buildLayeredImage {
-  inherit name;
-  fromImage = baseImageWithDeps;
-  config = {
-    Entrypoint = [ entrypoint ];
-  };
-}
-
+image

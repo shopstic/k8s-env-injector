@@ -60,12 +60,10 @@
             appImage = pkgs.callPackage ./images/app {
               inherit deno kubectl k8sEnvInjector;
               inherit (pkgs) dumb-init;
-              buildahBuild = pkgs.callPackage hotPot.lib.buildahBuild;
             };
             initImage = pkgs.callPackage ./images/init {
               inherit kubectl;
               inherit (pkgs) openssl;
-              buildahBuild = pkgs.callPackage hotPot.lib.buildahBuild;
             };
           };
           devShell = pkgs.mkShellNoCC {

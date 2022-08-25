@@ -1,34 +1,43 @@
 { lib
 , stdenv
+, bash
 , openssl
 , kubectl
-, buildahBuild
+, coreutils
 , dockerTools
 }:
 let
   name = "k8s-env-injector-init";
-  baseImage = buildahBuild
-    {
-      name = "${name}-base";
-      context = ./context;
-      buildArgs = {
-        fromDigest = "sha256:626ffe58f6e7566e00254b638eb7e0f3b11d4da9675088f4781a50ae288f3322";
-      };
-      outputHash =
-        if stdenv.isx86_64 then
-          "sha256-lYiGeQccC6iKEdhaWPjLTWr+8xe8Kh0+F+pgmQZkQpU=" else
-          "sha256-kCPcb3meQUQ9/JD0KCBSpmH/ZztSohxy5qqas1FZHAw=";
-    };
+  user = "app";
+  uid = 1001;
+  gid = uid;
   initScript = ./init.sh;
-in
-dockerTools.buildImage {
-  inherit name;
-  fromImage = baseImage;
-  config = {
-    Env = [
-      "ENTRYPOINT_SCRIPT=${initScript}"
-      "PATH=${lib.makeBinPath [ openssl kubectl ]}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    ];
-  };
-}
+  image = dockerTools.buildLayeredImage {
+    name = name;
+    contents = [ coreutils openssl kubectl bash ];
+    config = {
+      Env = [
+        "ENTRYPOINT_SCRIPT=${initScript}"
+      ];
+    };
+    fakeRootCommands = ''
+      mkdir ./etc
 
+      echo "root:!x:::::::" > ./etc/shadow
+      echo "${user}:!:::::::" >> ./etc/shadow
+
+      echo "root:x:0:0::/root:${bash}/bin/bash" > ./etc/passwd
+      echo "${user}:x:${toString uid}:${toString gid}::/home/${user}:" >> ./etc/passwd
+
+      echo "root:x:0:" > ./etc/group
+      echo "${user}:x:${toString gid}:" >> ./etc/group
+
+      echo "root:x::" > ./etc/gshadow
+      echo "${user}:x::" >> ./etc/gshadow
+
+      mkdir -p ./home/${user}
+      chown ${toString uid} ./home/${user}
+    '';
+  };
+in
+image
