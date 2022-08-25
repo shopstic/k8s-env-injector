@@ -9,9 +9,9 @@ defaults:
 jobs:
   test:
     name: Test
-    runs-on: [self-hosted, nix]
+    runs-on: [self-hosted, nix, general, arm64-linux, small]
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+      - uses: actions/checkout@v3
 
       - name: Test
         shell: nix develop -v -c bash {0}
@@ -23,21 +23,30 @@ jobs:
 
   build:
     name: Build image
-    runs-on: [self-hosted, nix]
+    runs-on:
+      - self-hosted
+      - nix
+      - general
+      - ${{ matrix.arch.runner }}
+      - small
     needs: [test]
     env:
       IMAGE_REPOSITORY: public.ecr.aws/shopstic
     strategy:
       matrix:
         image: [app, init]
-        arch: [x86_64, aarch64]
+        arch:
+          - nix: x86_64
+            runner: amd64-linux
+          - nix: aarch64
+            runner: arm64-linux
         include:
           - image: app
             imageName: k8s-env-injector
           - image: init
             imageName: k8s-env-injector-init
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+      - uses: actions/checkout@v3
 
       - name: Login to Amazon ECR
         uses: ./.github/actions/login-to-public-ecr
@@ -46,12 +55,12 @@ jobs:
 
       - name: Build container images
         run: |-
-          nix build -L -v '.#packages.${{ matrix.arch }}-linux.${{ matrix.image }}Image'
+          nix build -L -v '.#packages.${{ matrix.arch.nix }}-linux.${{ matrix.image }}Image'
 
       - name: Push
         env:
           GITHUB_SHA: ${{ github.sha }}
-          NIX_ARCH: ${{ matrix.arch }}
+          NIX_ARCH: ${{ matrix.arch.nix }}
           IMAGE_NAME: ${{ matrix.imageName }}
         shell: nix develop -v -c bash {0}
         run: |-
@@ -79,9 +88,9 @@ jobs:
           - image: app
             imageName: k8s-env-injector
           - image: init
-            imageName: k8s-env-injector-init      
+            imageName: k8s-env-injector-init
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+      - uses: actions/checkout@v3
 
       - name: Login to Amazon ECR
         uses: ./.github/actions/login-to-public-ecr
@@ -101,12 +110,12 @@ jobs:
 
   push-helm-chart:
     name: Push Helm chart
-    runs-on: [self-hosted, nix]
+    runs-on: [self-hosted, nix, general, arm64-linux, small]
     needs: [build]
     env:
-      IMAGE_REPOSITORY: public.ecr.aws/shopstic   
+      IMAGE_REPOSITORY: public.ecr.aws/shopstic
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+      - uses: actions/checkout@v3
 
       - name: Login to Amazon ECR
         uses: ./.github/actions/login-to-public-ecr

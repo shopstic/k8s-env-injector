@@ -14,7 +14,7 @@ defaults:
 jobs:
   release-image:
     name: Release image ${{ matrix.imageName }} ${{ github.event.inputs.version }}
-    runs-on: [self-hosted, nix]
+    runs-on: [self-hosted, nix, general, arm64-linux, small]
     env:
       IMAGE_REPOSITORY: public.ecr.aws/shopstic   
     strategy:
@@ -26,7 +26,7 @@ jobs:
           - image: init
             imageName: k8s-env-injector-init              
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+      - uses: actions/checkout@v3
 
       - name: Login to Amazon ECR
         uses: ./.github/actions/login-to-public-ecr
@@ -47,11 +47,11 @@ jobs:
 
   release-helm-chart:
     name: Release Helm chart ${{ github.event.inputs.version }}
-    runs-on: [self-hosted, nix]
+    runs-on: [self-hosted, nix, general, arm64-linux, small]
     env:
       IMAGE_REPOSITORY: public.ecr.aws/shopstic   
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+      - uses: actions/checkout@v3
 
       - name: Login to Amazon ECR
         uses: ./.github/actions/login-to-public-ecr
@@ -67,10 +67,10 @@ jobs:
 
   create-git-tag:
     name: Create git tag ${{ github.event.inputs.version }}
-    runs-on: [self-hosted, nix]
+    runs-on: [self-hosted, nix, general, arm64-linux, small]
     needs: [release-image, release-helm-chart]
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+      - uses: actions/checkout@v3
 
       - name: Create git tag
         env:
