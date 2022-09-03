@@ -4,6 +4,7 @@ metadata:
   name: {{ include "env-injector.fullname" . }}-init
   labels:
     {{- include "env-injector.labels" . | nindent 4 }}
+    app.kubernetes.io/component: init
     shopstic.com/env-injector-controller: "true"
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"
@@ -14,6 +15,7 @@ spec:
     metadata:
       labels:
         {{- include "env-injector.labels" . | nindent 8 }}
+        app.kubernetes.io/component: init
         shopstic.com/env-injector-controller: "true"
     spec:
       serviceAccountName: {{ include "env-injector.fullname" . }}-init

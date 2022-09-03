@@ -5,11 +5,13 @@ metadata:
   labels:
     {{- include "env-injector.labels" . | nindent 4 }}
     shopstic.com/env-injector-controller: "true"
+    app.kubernetes.io/component: controller
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "env-injector.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: controller
       shopstic.com/env-injector-controller: "true"
   template:
     metadata:
@@ -19,6 +21,7 @@ spec:
       {{- end }}
       labels:
         {{- include "env-injector.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: controller
         shopstic.com/env-injector-controller: "true"
     spec:
       {{- with .Values.imagePullSecrets }}
